@@ -21,7 +21,6 @@ $search_value = "";
 $total = 0;
 $start = 0;
 $length = 25;
-$array = [];
 
 $StockManager = new StockManager();
 $ConfigurationManager = new ConfigurationManager();
@@ -31,10 +30,6 @@ $mode = $_REQUEST['mode'];
 if (isset($_REQUEST['start'])) {
     $start = $_REQUEST['start'];
 }
-
-$arrayJson_chidren["lg_prosubid"] = isset($value['lg_prosubid']) ? $value['lg_prosubid'] : null;
-$arrayJson_chidren["ArtGPicID"] = isset($value['p_key']) && $value["p_key"] ? Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . $value['str_docpath'] : null;
-
 
 if (isset($_REQUEST['length'])) {
     $length = $_REQUEST['length'];
@@ -79,17 +74,6 @@ if (isset($_REQUEST['LIMIT'])) {
 if (isset($_REQUEST['PAGE'])) {
     $PAGE = $_REQUEST['PAGE'];
 }
-
-if (is_array($array)) {
-    $LG_PROSUBID = isset($array['lg_prosubid']) ? $array['lg_prosubid'] : null;
-    $p_key = isset($array['p_key']) ? $array['p_key'] : null;
-    $str_prodescription = isset($array['str_prodescription']) ? $array['str_prodescription'] : null;
-} else {
-    // où $array n'est pas un tableau
-    $LG_PROSUBID = null;
-    $p_key = null;
-}
-
 
 if (isset($_REQUEST['STR_PROGAMME'])) {
     $STR_PROGAMME = $_REQUEST['STR_PROGAMME'];
@@ -158,11 +142,12 @@ if ($mode == "listProduct") {
             "ArtLastPA" => $value['int_propriceachat'],
             "ArtCateg" => $value['str_procateg'],
             "CmtTxt" => $value['str_prodetails'],
-            "lg_prosubid" => $value['lg_prosubid'],
+           // "lg_prosubid" => $value['lg_prosubid'],
             "ArtFamille" => $value['str_profamille'],
             "ArtGamme" => $value['str_progamme'],
             "ArtSpecies" => $value['str_proespece'],
-            "ArtGPicID" => $value["p_key"] ? Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . $value['str_docpath'] : null,
+            "ArtGPicID" => $value['str_propic'] != null ? Parameters::$rootFolderRelative . "produits/" . $value["lg_proid"] . "/" . $value['str_propic'] : null,
+           // "ArtGPicID" => $value["p_key"] ? Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . $value['str_docpath'] : null,
             "str_propic" => $value['str_propic']
         );
     }

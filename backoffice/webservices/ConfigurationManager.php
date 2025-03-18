@@ -1,10 +1,9 @@
 <?php
-
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header('Content-Type: application/json'); 
+
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
@@ -26,25 +25,11 @@ $search_value = "";
 $total = 0;
 $start = 0;
 $length = 25;
-$STR_UTITOKEN = "";
-$OUtilisateur = null;
-
 
 $ConfigurationManager = new ConfigurationManager();
 $OneSignal = new OneSignal();
 
-
-
 $mode = $_REQUEST['mode'];
-
-if (isset($_REQUEST['STR_UTITOKEN'])) {
-    $STR_UTITOKEN = $_REQUEST['STR_UTITOKEN'];
-    $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
-}
-
-if (isset($_REQUEST['start'])) {
-    $start = $_REQUEST['start'];
-}
 
 if (isset($_REQUEST['start'])) {
     $start = $_REQUEST['start'];
@@ -269,9 +254,6 @@ if ($mode == "listTypetransaction") {
     if (isset($_REQUEST['LG_LSTID'])) {
         $LG_LSTID = $_REQUEST['LG_LSTID'];
     }
-    if (isset($params['p_key'])) {
-    $p_key = $params['p_key'];
-} 
 
     //moi
     if (isset($_REQUEST['STR_UTIFIRSTLASTNAME'])) {
@@ -286,17 +268,16 @@ if ($mode == "listTypetransaction") {
         $STR_UTISTATUT = $_REQUEST['STR_UTISTATUT'];
     }
 
-   
+    if (isset($_REQUEST['STR_UTIMAIL'])) {
+        $STR_UTIMAIL = $_REQUEST['STR_UTIMAIL'];
+    }
+
     if (isset($_REQUEST['STR_UTILOGIN'])) {
         $STR_UTILOGIN = $_REQUEST['STR_UTILOGIN'];
     }
 
     if (isset($_REQUEST['STR_UTIPASSWORD'])) {
         $STR_UTIPASSWORD = $_REQUEST['STR_UTIPASSWORD'];
-    
-    }
-    if(isset($_REQUEST['STR_UTIMAIL'])){
-        $STR_UTIMAIL = $_REQUEST['STR_UTIMAIL'];
     }
     //moi
     if (isset($_REQUEST['LG_SOCEXTID'])) {
@@ -481,9 +462,9 @@ if ($mode == "listTypetransaction") {
         foreach ($value as $k => $v) {
             $arrayJson[$k] = $v;
         }
-        /* if ($value != null) {
-          $arrayJson = $value;
-          } */
+        /*if ($value != null) {
+            $arrayJson = $value;
+        }*/
     }//moi
     else if ($mode == 'getDocument') {
         $value = $ConfigurationManager->getDocument($LG_DOCID);
@@ -501,8 +482,8 @@ if ($mode == "listTypetransaction") {
                     $arrayJson_chidren['str_proname'] = $value['str_proname'];
                     $arrayJson_chidren['str_prodescription'] = $value['str_prodescription'];
                     $arrayJson_chidren['int_propricevente'] = $value['int_propricevente'];
-                    $arrayJson_chidren['int_cprquantity'] = (int) $item->int_cprquantity;
-                    $arrayJson_chidren['dbl_montant'] = (int) $value['int_propricevente'] * (int) $item->int_cprquantity;
+                    $arrayJson_chidren['int_cprquantity'] = (int)$item->int_cprquantity;
+                    $arrayJson_chidren['dbl_montant'] = (int)$value['int_propricevente'] * (int)$item->int_cprquantity;
                     $arrayJson["products"][] = $arrayJson_chidren;
                 }
             } else {
@@ -532,8 +513,8 @@ if ($mode == "listTypetransaction") {
 
         $arrayJson["data"] = $OJson;
         $arrayJson["total"] = $result['total'];
-        $arrayJson["limit"] = (int) $LIMIT;
-        $arrayJson["page"] = (int) $PAGE;
+        $arrayJson["limit"] = (int)$LIMIT;
+        $arrayJson["page"] = (int)$PAGE;
     } else if ($mode == 'getClientDemandes') {
         $result = $ConfigurationManager->showAllOrOneClientRequest($FILTER_OPTIONS, $LIMIT, $PAGE);
         foreach ($result['data'] as $val) {
@@ -563,8 +544,8 @@ if ($mode == "listTypetransaction") {
 
         $arrayJson["demandes"] = $OJson;
         $arrayJson["total"] = $result['total'];
-        $arrayJson["limit"] = (int) $LIMIT;
-        $arrayJson["page"] = (int) $PAGE;
+        $arrayJson["limit"] = (int)$LIMIT;
+        $arrayJson["page"] = (int)$PAGE;
     } //moi
     else if ($mode == "getUtilisateur") {
         $value = $ConfigurationManager->getUtilisateur($LG_UTIID);
@@ -607,7 +588,7 @@ if ($mode == "listTypetransaction") {
             $arrayJson_chidren["str_socstatut"] = $value[0][0]['str_socstatut'];
             $arrayJson_chidren["str_soccode"] = $value[0][0]['str_soccode'];
             $arrayJson_chidren["lg_socextid"] = $value[0][0]['lg_socextid'];
-            $arrayJson_chidren["gallery"] = $galerie !== "" ? $galerie : null;
+            $arrayJson_chidren["gallery"] = $galerie !== "" ? $galerie: null;
             $OJson[] = $arrayJson_chidren;
             $arrayJson['demande'] = $OJson;
         }
@@ -619,12 +600,13 @@ if ($mode == "listTypetransaction") {
             $arrayJson[] = $value[0];
         }
     } else if ($mode == "createSociete") {
-       // $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
+        $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
         $ConfigurationManager->createSociete($STR_SOCNAME, $STR_SOCDESCRIPTION, $STR_SOCLOGO ?? null, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $OUtilisateur);
     } else if ($mode == "updateSociete") {
-        //$OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
+        $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
         $ConfigurationManager->updateSociete($LG_SOCID, $LG_SOCEXTID, $STR_SOCDESCRIPTION, $STR_SOCNAME, $STR_SOCLOGO ?? null, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $OUtilisateur);
     } else if ($mode == "deleteSociete") {
+        $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
         $ConfigurationManager->deleteSociete($LG_SOCID, $OUtilisateur);
     } else if ($mode == "createSocieteOperateur") {
         $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
@@ -645,7 +627,7 @@ if ($mode == "listTypetransaction") {
     else if ($mode == "createAgence") {
         $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
         $ConfigurationManager->createAgence($STR_AGENAME, $STR_AGEDESCRIPTION, $STR_AGELOCALISATION,
-                $STR_AGEPHONE, $LG_SOCID, $OUtilisateur);
+            $STR_AGEPHONE, $LG_SOCID, $OUtilisateur);
     } //moi
     else if ($mode == 'createUtilisateur') {
         $STR_UTISTATUT = $_REQUEST['STR_UTISTATUT'] ?? null;
@@ -678,10 +660,11 @@ if ($mode == "listTypetransaction") {
         $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
         isset($_POST['LG_SOCID']) ? $LG_SOCID = $_POST['LG_SOCID'] : $LG_SOCID = null;
         $arrayJson["data"] = $ConfigurationManager->uploadOneOrSeveralDocuments([$_FILES['documents'], $_POST['documents']], $LG_SOCID ?? Parameters::$SN_PROVECI_ID, $OUtilisateur);
-    } else if ($mode === "changeDocumentStatut") {
+    } else if ($mode === "changeDocumentStatut"){
         $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
         $ConfigurationManager->changeDocumentStatut($LG_DOCID, $OUtilisateur);
-    } else if ($mode == "registerClient") {
+    }
+        else if ($mode == "registerClient") {
         $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
 
         $ConfigurationManager->createDemande($STR_SOCNAME, $STR_SOCDESCRIPTION, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $STR_UTIFIRSTLASTNAME, $STR_UTIMAIL, $STR_UTILOGIN, $STR_UTIPASSWORD, $STR_UTIPHONE, $LG_PROID, [$_FILES['documents'], $_POST['documents']], $OUtilisateur, null, null, null, null);
@@ -702,8 +685,8 @@ if ($mode == "listTypetransaction") {
         isset($_FILES['images']) ? $PICTURE = $_FILES['images'] : $PICTURE = null;
         $result = $ConfigurationManager->uploadMainImageProduct($PICTURE, $LG_PROID, $OUtilisateur);
         $arrayJson['data'] = [[
-        "id" => $LG_PROID,
-        "src" => Parameters::$rootFolderRelative . "produits/" . $LG_PROID . "/" . $result,
+            "id" => $LG_PROID,
+            "src" => Parameters::$rootFolderRelative . "produits/" . $LG_PROID . "/" . $result,
         ]];
     } else if ($mode == "uploadThumbImagesProduct") {
         $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
@@ -877,8 +860,8 @@ if ($mode == "listTypetransaction") {
             $OJson[] = $arrayJson_chidren;
         }
         $arrayJson["data"] = $OJson;
-        $arrayJson['limit'] = (int) $LIMIT;
-        $arrayJson['page'] = (int) $PAGE;
+        $arrayJson['limit'] = (int)$LIMIT;
+        $arrayJson['page'] = (int)$PAGE;
         $arrayJson['total'] = $result['total'];
     } else if ($mode === "showPrivileges") {
         $privileges = $ConfigurationManager->showAllOrOnePrivilege(null, 999999999, 1)["data"];
@@ -891,7 +874,7 @@ if ($mode == "listTypetransaction") {
                 $arrayJson["data"][$privilege['str_priaction']] = false;
             }
         }
-    } else if ($mode == "slugifyProductName") {
+    }else if($mode == "slugifyProductName"){
         $ConfigurationManager->slugifyProductName();
     } else if ($mode === "assignPrivilegesToProfil") {
         $result = $ConfigurationManager->assignPrivilegesToProfile($LG_PROID, $LG_PRIIDS);
@@ -913,7 +896,7 @@ if ($mode == "listTypetransaction") {
         $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
         $result = $ConfigurationManager->createListe($LG_TYLID, $STR_LSTDESCRIPTION, $STR_LSTVALUE, $OUtilisateur);
         $arrayJson["LG_LSTID"] = $result;
-    } else if ($mode == "updateLastBackUpDate") {
+    } else if ($mode == "updateLastBackUpDate"){
         $ConfigurationManager->updateLastBackUpDate();
     } else if ($mode === "listProfilPrivileges") {
         $result = $ConfigurationManager->showAllProfilPrivileges($LG_PROID);
@@ -948,18 +931,14 @@ if ($mode == "listTypetransaction") {
 
         $arrayJson["data"] = $OJson;
         $arrayJson["total"] = $result['total'];
-        $arrayJson["limit"] = (int) $LIMIT;
-        $arrayJson["page"] = (int) $PAGE;
-    }  else if ($mode == "resetPasswordUtilisateur") {
-        $ConfigurationManager->resetPasswordUtilisateur($STR_UTIMAIL, $OUtilisateur);
-        
-        
+        $arrayJson["limit"] = (int)$LIMIT;
+        $arrayJson["page"] = (int)$PAGE;
     }
 
     $arrayJson["code_statut"] = Parameters::$Message;
     $arrayJson["desc_statut"] = Parameters::$Detailmessage;
-    echo json_encode($arrayJson, JSON_PRETTY_PRINT);
 }
 
+echo json_encode($arrayJson);
 
 

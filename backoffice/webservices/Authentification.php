@@ -1,5 +1,4 @@
 <?php
-
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -20,6 +19,7 @@ $CommandeManager = new CommandeManager();
 $OneSignal = new OneSignal();
 
 $mode = $_REQUEST['mode'];
+
 
 if (isset($_REQUEST['STR_UTILOGIN'])) {
     $STR_UTILOGIN = $_REQUEST['STR_UTILOGIN'];
@@ -61,10 +61,10 @@ if ($mode == "doConnexion") {
         $arrayJson["STR_UTIPHONE"] = $value[0]['str_utiphone'];
         $arrayJson["STR_UTIMAIL"] = $value[0]['str_utimail'];
         $arrayJson["STR_UTILOGIN"] = $value[0]['str_utilogin'];
-        $arrayJson["STR_UTIPIC"] = $value[0]['str_utipic'] ? Parameters::$rootFolderRelative . "avatars/" . $value[0]["lg_utiid"] . "/" . $value[0]['str_utipic'] : null;
+        $arrayJson["STR_UTIPIC"] = $value[0]['str_utipic'] ? Parameters::$rootFolderRelative . "avatars/" .  $value[0]["lg_utiid"] . "/" . $value[0]['str_utipic'] : null;
         $arrayJson["STR_UTITOKEN"] = $value[0]['str_utitoken'];
         $arrayJson["LG_PROID"] = $value[0]['lg_proid'];
-        $arrayJson["STR_PROTYPE"] = $value[0]['str_protype'] ?? null;
+        $arrayJson["STR_PROTYPE"] = $value[0]['str_protype'] ?: null;
         $arrayJson["STR_PRODESCRIPTION"] = $value[0]['str_prodescription'] ?: null;
         $arrayJson["STR_SOCNAME"] = $value[0]['str_socname'];
         $arrayJson["STR_SOCDESCRIPTION"] = $value[0]['str_socdescription'];
@@ -83,4 +83,5 @@ $arrayJson["code_statut"] = Parameters::$Message;
 $arrayJson["desc_statut"] = Parameters::$Detailmessage;
 
 echo json_encode($arrayJson);
+
 

@@ -8,9 +8,10 @@ require __DIR__ . '/../PHPMailer-master/src/Exception.php';
 require __DIR__ . '/../PHPMailer-master/src/PHPMailer.php';
 require __DIR__ . '/../PHPMailer-master/src/SMTP.php';
 
-interface ConfigurationInterface {
+interface ConfigurationInterface
+{
 
-//code ajouté
+    //code ajouté
     public function doConnexion($STR_UTILOGIN, $STR_UTIPASSWORD, $IS_ADMIN = 0);
 
     public function doDisConnexion($STR_UTITOKEN);
@@ -23,6 +24,7 @@ interface ConfigurationInterface {
 
     public function showAllOrOneProfile($FILTER_OPTIONS, $LIMIT, $PAGE);
 
+
     public function getProfilePrivilege($LG_PROID, $LG_PRIID);
 
     public function getTypetransaction($LG_TTRID);
@@ -33,10 +35,10 @@ interface ConfigurationInterface {
 
     public function showAllOrOneOperateur($search_value);
 
-//Moi
+    //Moi
     public function createSociete($STR_SOCNAME, $STR_SOCDESCRIPTION, $STR_SOCLOGO, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $OUtilisateur, $LG_SOCEXTID = null, $DBL_SOCPLAFOND = null, $STR_SOCSTATUT = null);
 
-    public function updateSociete($LG_SOCID, $LG_SOCEXTID, $STR_SOCSTATUT, $STR_SOCDESCRIPTION, $STR_SOCNAME, $STR_SOCLOGO, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $OUtilisateur);
+    public function updateSociete($LG_SOCID, $LG_SOCEXTID, $STR_SOCSTATUT, $STR_SOCDESCRIPTION, $STR_SOCNAME, $STR_SOCLOGO, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $DBL_SOCPLAFOND = null, $OUtilisateur);
 
     public function getSociete($LG_SOCID);
 
@@ -78,69 +80,69 @@ interface ConfigurationInterface {
 
     public function getAgence($LG_AGEID);
 
-//fin code ajouté
+    //fin code ajouté
 
     public function createListe($LG_TYLID, $STR_LSTDESCRIPTION, $STR_LSTVALUE, $OUtilisateur);
 
-//moi
+    //moi
     public function getListe($LG_LSTID);
 
     public function showAllOrOneListe($search_value, $LG_TYLID);
 
-//Moi
+    //Moi
     public function createAgence($STR_AGENAME, $STR_AGEDESCRIPTION, $STR_AGELOCALISATION,
-            $STR_AGEPHONE, $LG_SOCID, $OUtilisateur, $STR_AGESTATUT = null);
+                                 $STR_AGEPHONE, $LG_SOCID, $OUtilisateur, $STR_AGESTATUT = null);
 
-//moi
+    //moi
     public function getTrueAgence($LG_AGEID);
 
-//moi
+    //moi
     public function createUtilisateur($STR_UTIFIRSTLASTNAME, $STR_UTIPHONE, $STR_UTIMAIL, $STR_UTILOGIN, $STR_UTIPASSWORD, $LG_AGEID, $STR_UTIPIC, $LG_PROID, $OUtilisateur, $STR_UTISTATUT = null);
 
     public function updateUtilisateur($LG_UTIID, $STR_UTISTATUT, $STR_UTIFIRSTLASTNAME, $STR_UTIPHONE, $STR_UTIMAIL, $STR_UTILOGIN, $LG_AGEID, $STR_UTIPIC, $LG_PROID, $OUtilisateur, $STR_UTIPASSWORD = null);
 
     public function deleteUtilisateur($LG_UTIID, $OUtilisateur);
 
-//moi
+    //moi
     public function createDocument($P_KEY, $STR_DOCPATH, $LG_LSTID, $OUtilisateur);
 
-//moi
+    //moi
     public function getDocument($LG_DOCID);
 
     public function showAllOrOneDocument($FILTER_OPTIONS);
 
-//moi
+    //moi
     public function showAllOrOneClientRequest($FILTERS_OPTIONS, $LIMIT, $PAGE);
 
-//moi
+    //moi
     public function createClientExternal($LG_SOCID, $OUtilisateur);
 
-//moi
+    //moi
 //    public function createDemande($STR_SOCNAME, $STR_SOCDESCRIPTION, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE,
 //                                  $STR_UTIFIRSTLASTNAME, $STR_UTIMAIL, $STR_UTILOGIN, $STR_UTIPASSWORD, $STR_UTIPHONE, $LG_PROID, $DOCUMENTS, $OUtilisateur, $LG_SOCEXTID = null, $STR_SOCLOGO = null, $STR_UTIPIC = null, $DBL_SOCPLAFOND = null);
 
     public function createDemande($value);
 
-//moi
+    //moi
     public function uploadOneOrSeveralDocuments($Documents, $LG_SOCID, $OUtilisateur);
 
-//moi
+    //moi
     public function getClientDemande($LG_SOCID, $STATUT = null);
 
-//moi
+    //moi
     public function rejectRegistration($LG_SOCID, $OUtilisateur);
 
     public function showAllOrOneBackUsers($FILTER_OPTIONS, $LIMIT, $PAGE);
 
-//moi
+    //moi
     public function markProductAsViewed($LG_PROID, $OUtilisateur);
 
-//moi
+    //moi
     public function uploadMainImageProduct($PICTURE, $LG_PROID, $OUtilisateur);
 
     public function uploadThumbImagesProduct($PICTURES, $LG_PROID, $OUtilisateur);
 
-//moi
+    //moi
     public function createProductSubstitution($LG_PROPARENTID, $LG_PROKIDIDS, $OUtilisateur);
 
     public function deleteProduitSubstitution($LG_PROSUBID);
@@ -166,6 +168,7 @@ interface ConfigurationInterface {
     public function showAllDocumentRemote($search_value, $date = null);
 
     public function loadExternalDocuments($table, $search, $date);
+
 
     public function createProfil($STR_PRONAME, $STR_PRODESCRIPTION, $LG_LSTID, $OUtilisateur);
 
@@ -204,12 +207,10 @@ interface ConfigurationInterface {
     public function updateDemande($value, $LG_SOCID);
 
     public function changeDocumentStatut($LG_DOCID, $OUtilisateur);
-
-    public function resetPasswordUtilisateur($STR_UTIMAIL, $OUtilisateur = null);
-
 }
 
-class ConfigurationManager implements ConfigurationInterface {
+class ConfigurationManager implements ConfigurationInterface
+{
 
     private $Typetransaction = 'typetransaction';
     private $OTypetransaction = array();
@@ -230,14 +231,18 @@ class ConfigurationManager implements ConfigurationInterface {
     private $Agence = 'agence';
     private $OProfile = array();
     private $dbconnnexion;
-//constructeur de la classe
+
+    //constructeur de la classe
     private $Liste = "liste";
     private $OListe = array();
+
     private $Document = "document";
     private $ODocument = array();
     private $ODemandes = array();
+
     private $Piste_audit = "piste_audit";
     private $Produit = "produit";
+
     private $ProduitSubstitution = "produit_substitution";
     private $OProduitSubstitution = array();
     private $StatDevis = "stat_devis";
@@ -245,14 +250,14 @@ class ConfigurationManager implements ConfigurationInterface {
     private $OPrivilege = [];
 
 
-
-    public function __construct() {
+    public function __construct()
+    {
         $this->dbconnnexion = DoConnexionPDO(Parameters::$host, Parameters::$user, Parameters::$pass, Parameters::$db, Parameters::$port);
     }
 
-
-//connexion d'un utilisateur
-    public function doConnexion($STR_UTILOGIN, $STR_UTIPASSWORD, $IS_ADMIN = 0) {
+    //connexion d'un utilisateur
+    public function doConnexion($STR_UTILOGIN, $STR_UTIPASSWORD, $IS_ADMIN = 0)
+    {
         $validation = array();
         $Object = null;
         $STR_UTITOKEN = generateRandomString(20);
@@ -273,11 +278,12 @@ class ConfigurationManager implements ConfigurationInterface {
                     p.lg_lstid = :LG_LSTID
                 LIMIT 1";
                 $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+                //exécution de la requête
                 $params = array('STR_UTILOGIN' => $STR_UTILOGIN, 'STR_UTIPASSWORD' => sha1($STR_UTIPASSWORD), 'STR_UTISTATUT' => Parameters::$statut_enable, "LG_LSTID" => Parameters::$defaultSystemProfilID);
                 $res->execute($params);
 
                 $data = $res->fetch();
+
             } else {
                 $query = "
                         SELECT t.*, p.str_prodescription, s.lg_socid, s.str_socname, s.str_socdescription, s.str_soclogo, s.dbl_socplafond, s.lg_socextid 
@@ -326,7 +332,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function createProductSubstitution($LG_PROPARENTID, $LG_PROKIDIDS, $OUtilisateur): array {
+    public function createProductSubstitution($LG_PROPARENTID, $LG_PROKIDIDS, $OUtilisateur): array
+    {
 //        var_dump($LG_PROKIDIDS);
 
         $validation = [];
@@ -360,7 +367,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return ["validation" => $validation, "fails" => $fails];
     }
 
-    public function getProduitSubstitution($LG_PROSUBID) {
+    public function getProduitSubstitution($LG_PROSUBID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("Produit de substitution inexistant");
         try {
@@ -377,9 +385,10 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//fin connexion d'un utilisateur
-//déconnexion d'un utilisateur
-    public function doDisConnexion($STR_UTITOKEN) {
+    //fin connexion d'un utilisateur
+    //déconnexion d'un utilisateur
+    public function doDisConnexion($STR_UTITOKEN)
+    {
         $validation = false;
         Parameters::buildErrorMessage("Échec de déconnexion. Veuillez réessayer svp!");
         try {
@@ -398,9 +407,10 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//fin déconnexion d'un utilisateur
-//mise à jour de token de l'utilisateur
-    public function updateTokenUtilisateur($OUtilisateur, $STR_UTITOKEN) {
+    //fin déconnexion d'un utilisateur
+    //mise à jour de token de l'utilisateur
+    public function updateTokenUtilisateur($OUtilisateur, $STR_UTITOKEN)
+    {
         $validation = false;
         try {
             $params_condition = array("lg_utiid" => $OUtilisateur[0]['lg_utiid']);
@@ -416,12 +426,13 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//recherche d'un utilisateur
-    public function getUtilisateur($LG_UTIID) {
+    //recherche d'un utilisateur
+    public function getUtilisateur($LG_UTIID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("Utilisateur inexistant");
         try {
-            $params_condition = array("lg_utiid" => $LG_UTIID, "str_utitoken" => $LG_UTIID, "str_utimail" => $LG_UTIID);
+            $params_condition = array("lg_utiid" => $LG_UTIID, "str_utitoken" => $LG_UTIID);
             $validation = $this->OUtilisateur = Find($this->Utilisateur, $params_condition, $this->dbconnnexion, "OR");
             if ($this->OUtilisateur == null) {
                 return $validation;
@@ -433,7 +444,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function showAllOrOneBackUsers($FILTER_OPTIONS, $LIMIT, $PAGE) {
+    public function showAllOrOneBackUsers($FILTER_OPTIONS, $LIMIT, $PAGE)
+    {
         $arraySql = array();
         $WHERE = [];
         $select = "*";
@@ -464,9 +476,7 @@ class ConfigurationManager implements ConfigurationInterface {
                 $params = [];
                 foreach ($FILTER_OPTIONS as $key => $value) {
                     if ($key === "search") {
-                        for ($i = 0;
-                                $i < 3;
-                                $i++) {
+                        for ($i = 0; $i < 3; $i++) {
                             $params[] = "%" . $value . "%";
                         }
                     }
@@ -497,6 +507,8 @@ class ConfigurationManager implements ConfigurationInterface {
             $res = $this->dbconnnexion->prepare($queryCount);
             $res->execute($params);
             $count = $res->fetchAll(PDO::FETCH_ASSOC);
+
+
         } catch (\Exception $exc) {
             error_log($exc->getMessage());
             Parameters::buildErrorMessage("Impossible d'obtenir la liste des utilisateurs, veuillez contacter votre administrateur.");
@@ -504,10 +516,11 @@ class ConfigurationManager implements ConfigurationInterface {
         return ["data" => $arraySql, "total" => $count[0]["count"] == null ? 0 : $count[0]["count"]];
     }
 
-//fin gestion des utilisateurs
-//gestion des profils
-//recherche de profil
-    public function getProfile($LG_PROID) {
+    //fin gestion des utilisateurs
+    //gestion des profils
+    //recherche de profil
+    public function getProfile($LG_PROID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("Profil inexistant");
         try {
@@ -524,8 +537,9 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//liste de profils
-    public function showAllOrOneProfile($FILTER_OPTIONS, $LIMIT, $PAGE) {
+    //liste de profils
+    public function showAllOrOneProfile($FILTER_OPTIONS, $LIMIT, $PAGE)
+    {
         $arraySql = array();
         $params = [];
         $select = "*";
@@ -546,9 +560,7 @@ class ConfigurationManager implements ConfigurationInterface {
 
                 foreach ($FILTER_OPTIONS as $key => $value) {
                     if ($key === "search") {
-                        for ($i = 0;
-                                $i < 2;
-                                $i++) {
+                        for ($i = 0; $i < 2; $i++) {
                             $params[] = "%" . $FILTER_OPTIONS['search'] . "%";
                         }
                     } else {
@@ -573,6 +585,7 @@ class ConfigurationManager implements ConfigurationInterface {
             $res = $this->dbconnnexion->prepare($queryCount);
             $res->execute($params);
             $count = $res->fetchAll(PDO::FETCH_ASSOC);
+
         } catch (\Exception $exc) {
             error_log($exc->getMessage());
             Parameters::buildErrorMessage("Impossible d'obtenir les profils, veuillez contactez votre administrateur");
@@ -580,9 +593,10 @@ class ConfigurationManager implements ConfigurationInterface {
         return ["data" => $arraySql, "total" => $count[0]["total"] == null ? 0 : ($count[0]["total"])];
     }
 
-//fin gestion des profils
-//gestion des privileges
-    public function getProfilePrivilege($LG_PROID, $LG_PRIID) {
+    //fin gestion des profils
+    //gestion des privileges
+    public function getProfilePrivilege($LG_PROID, $LG_PRIID)
+    {
         $validation = null;
         try {
             $params_condition = array("LG_PROID" => $LG_PROID, "LG_PRIID" => $LG_PRIID);
@@ -598,9 +612,10 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//fin gestion des privileges
-//Gestion des types de transactions
-    public function getTypetransaction($LG_TTRID) {
+    //fin gestion des privileges
+    //Gestion des types de transactions
+    public function getTypetransaction($LG_TTRID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("Type de transaction inexistante");
         try {
@@ -618,12 +633,13 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function showAllOrOneTypetransaction($search_value) {
+    public function showAllOrOneTypetransaction($search_value)
+    {
         $arraySql = array();
         try {
             $query = "SELECT * FROM " . $this->Typetransaction . " t WHERE (t.STR_TTRNAME LIKE :search_value OR t.STR_TTRDESCRIPTION LIKE :search_value) AND t.STR_TTRSTATUT = :STR_STATUT ORDER BY t.STR_TTRDESCRIPTION";
             $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+            //exécution de la requête
             $res->execute(array('search_value' => $search_value . "%", 'STR_STATUT' => Parameters::$statut_enable));
             while ($rowObj = $res->fetch()) {
                 $arraySql[] = $rowObj;
@@ -635,9 +651,10 @@ class ConfigurationManager implements ConfigurationInterface {
         return $arraySql;
     }
 
-//fin gestion des types de transaction
-//gestion des opérateurs
-    public function getOperateur($LG_OPEID) {
+    //fin gestion des types de transaction
+    //gestion des opérateurs
+    public function getOperateur($LG_OPEID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("Opérateur inexistant");
         try {
@@ -655,12 +672,13 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function showAllOrOneOperateur($search_value) {
+    public function showAllOrOneOperateur($search_value)
+    {
         $arraySql = array();
         try {
             $query = "SELECT * FROM " . $this->Operateur . " t WHERE (t.STR_OPENAME LIKE :search_value OR t.STR_OPEDESCRIPTION LIKE :search_value) AND t.STR_OPESTATUT = :STR_STATUT ORDER BY t.STR_OPEDESCRIPTION";
             $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+            //exécution de la requête
             $res->execute(array('search_value' => $search_value . "%", 'STR_STATUT' => Parameters::$statut_enable));
             while ($rowObj = $res->fetch()) {
                 $arraySql[] = $rowObj;
@@ -672,11 +690,12 @@ class ConfigurationManager implements ConfigurationInterface {
         return $arraySql;
     }
 
-//fin gestion des opérateurs
-//gestion des sociétés
-//creation d'une société
-//moi
-    public function createSociete($STR_SOCNAME, $STR_SOCDESCRIPTION, $STR_SOCLOGO, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $OUtilisateur, $LG_SOCEXTID = null, $DBL_SOCPLAFOND = null, $STR_SOCSTATUT = null): string {
+    //fin gestion des opérateurs
+    //gestion des sociétés
+    //creation d'une société
+    //moi
+    public function createSociete($STR_SOCNAME, $STR_SOCDESCRIPTION, $STR_SOCLOGO, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $OUtilisateur, $LG_SOCEXTID = null, $DBL_SOCPLAFOND = null, $STR_SOCSTATUT = null): string
+    {
         $validation = "";
         $LG_SOCID = generateRandomString(20);
         $LG_LSTTYPESOCID = $this->getListe($LG_LSTTYPESOCID);
@@ -714,9 +733,10 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//fin creation d'une société
-//mise à jour d'une société
-    public function updateSociete($LG_SOCID, $LG_SOCEXTID, $STR_SOCSTATUT, $STR_SOCDESCRIPTION, $STR_SOCNAME, $STR_SOCLOGO, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $OUtilisateur = null) {
+    //fin creation d'une société
+    //mise à jour d'une société
+    public function updateSociete($LG_SOCID, $LG_SOCEXTID, $STR_SOCSTATUT, $STR_SOCDESCRIPTION, $STR_SOCNAME, $STR_SOCLOGO, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $DBL_SOCPLAFOND = null, $OUtilisateur = null)
+    {
         $validation = false;
         $LG_LSTTYPESOCID = $this->getListe($LG_LSTTYPESOCID);
         if ($LG_LSTTYPESOCID == null) {
@@ -742,7 +762,8 @@ class ConfigurationManager implements ConfigurationInterface {
             }
             $params_to_update = array("str_socname" => $STR_SOCNAME, "str_socdescription" => $STR_SOCDESCRIPTION, "lg_socextid" => $LG_SOCEXTID, "str_socstatut" => $STR_SOCSTATUT, "str_soclogo" => (!$STR_SOCLOGO ? $this->OSociete[0]["str_soclogo"] : $STR_SOCLOGO),
                 "str_socmail" => $STR_SOCMAIL, "str_socphone" => $STR_SOCPHONE, "dt_socupdated" => get_now(),
-                "lg_utiupdatedid" => $OUtilisateur ? $OUtilisateur[0]['lg_utiid'] : Parameters::$defaultAdminId, "lg_lsttypesocid" => $LG_LSTTYPESOCID[0]['lg_lstid'], "lg_lstpayid" => $LG_LSTPAYID[0]['lg_lstid'], 'str_soccode' => $STR_SOCCODE, 'str_socsiret' => $STR_SOCSIRET);
+                "lg_utiupdatedid" => $OUtilisateur ? $OUtilisateur[0]['lg_utiid'] : Parameters::$defaultAdminId, "lg_lsttypesocid" => $LG_LSTTYPESOCID[0]['lg_lstid'], "lg_lstpayid" => $LG_LSTPAYID[0]['lg_lstid'], 'str_soccode' => $STR_SOCCODE, 'str_socsiret' => $STR_SOCSIRET,
+                "dbl_socplafond" => $DBL_SOCPLAFOND == "" ? $this->OSociete[0]["dbl_socplafond"] : $DBL_SOCPLAFOND); 
 
             if ($this->dbconnnexion != null) {
                 if (Merge($this->Societe, $params_to_update, $params_condition, $this->dbconnnexion)) {
@@ -759,9 +780,10 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//fin mise à jour de société
-//suppression de société
-    public function deleteSociete($LG_SOCID, $OUtilisateur) {
+    //fin mise à jour de société
+    //suppression de société
+    public function deleteSociete($LG_SOCID, $OUtilisateur)
+    {
         $validation = false;
         try {
             $this->OSociete = $this->getSociete($LG_SOCID);
@@ -789,9 +811,10 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//fin suppression de société
-//recherche de société
-    public function getSociete($LG_SOCID) {
+    //fin suppression de société
+    //recherche de société
+    public function getSociete($LG_SOCID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("Société inexistante");
         try {
@@ -809,9 +832,10 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//fin recherche de société
-//liste des sociétés
-    public function showAllOrOneSociete($search_value, $statut) {
+    //fin recherche de société
+    //liste des sociétés
+    public function showAllOrOneSociete($search_value, $statut)
+    {
         if ($statut != Parameters::$statut_process and $statut != Parameters::$statut_enable and $statut != Parameters::$statut_delete and $statut != Parameters::$statut_closed) {
             Parameters::buildErrorMessage("Statut incorrecte");
             return [];
@@ -820,7 +844,7 @@ class ConfigurationManager implements ConfigurationInterface {
         try {
             $query = "SELECT * FROM " . $this->Societe . " t WHERE (t.str_socname LIKE :search_value OR t.str_socdescription LIKE :search_value) AND t.str_socstatut = :STR_STATUT ORDER BY t.str_socdescription";
             $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+            //exécution de la requête
             $res->execute(array('search_value' => $search_value . "%", 'STR_STATUT' => $statut));
             while ($rowObj = $res->fetchAll()) {
                 $arraySql[] = $rowObj;
@@ -832,12 +856,13 @@ class ConfigurationManager implements ConfigurationInterface {
         return $arraySql;
     }
 
-    public function showAllOrOneSocieteLimit($search_value, $start, $limit) {
+    public function showAllOrOneSocieteLimit($search_value, $start, $limit)
+    {
         $arraySql = array();
         try {
             $query = "SELECT * FROM " . $this->Societe . " t WHERE (t.STR_SOCNAME LIKE :search_value OR t.STR_SOCDESCRIPTION LIKE :search_value) AND t.STR_SOCSTATUT = :STR_STATUT ORDER BY t.STR_SOCDESCRIPTION LIMIT " . $start . "," . $limit;
             $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+            //exécution de la requête
             $res->execute(array('search_value' => $search_value . "%", 'STR_STATUT' => Parameters::$statut_enable));
             while ($rowObj = $res->fetch()) {
                 $arraySql[] = $rowObj;
@@ -849,12 +874,13 @@ class ConfigurationManager implements ConfigurationInterface {
         return $arraySql;
     }
 
-    public function totalSociete($search_value) {
+    public function totalSociete($search_value)
+    {
         $result = 0;
         try {
             $query = "SELECT COUNT(t.LG_SOCID) NOMBRE FROM " . $this->Societe . " t WHERE (t.STR_SOCNAME LIKE :search_value OR t.STR_SOCDESCRIPTION LIKE :search_value) AND t.STR_SOCSTATUT = :STR_STATUT";
             $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+            //exécution de la requête
             $res->execute(array('search_value' => $search_value . "%", 'STR_STATUT' => Parameters::$statut_enable));
             while ($rowObj = $res->fetch()) {
                 $result = $rowObj["NOMBRE"];
@@ -866,7 +892,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $result;
     }
 
-    public function createSocieteOperateur($LG_SOCID, $LG_OPEID, $STR_SOPPHONE, $OUtilisateur) {
+    public function createSocieteOperateur($LG_SOCID, $LG_OPEID, $STR_SOPPHONE, $OUtilisateur)
+    {
         $validation = false;
         $LG_SOPID = generateRandomString(20);
         try {
@@ -896,7 +923,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function updateSocieteOperateur($LG_SOPID, $STR_SOPPHONE, $OUtilisateur) {
+    public function updateSocieteOperateur($LG_SOPID, $STR_SOPPHONE, $OUtilisateur)
+    {
         $validation = false;
         try {
             $this->OSocieteOperateur = $this->getSocieteOperateurUnique($LG_SOPID);
@@ -924,7 +952,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function getSocieteOperateur($LG_SOCID, $LG_OPEID) {
+    public function getSocieteOperateur($LG_SOCID, $LG_OPEID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("Opérateur inexistante sur la société");
         try {
@@ -942,7 +971,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function getSocieteOperateurUnique($LG_SOPID) {
+    public function getSocieteOperateurUnique($LG_SOPID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("Opérateur inexistante sur la société");
         try {
@@ -960,7 +990,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function deleteSocieteOperateur($LG_SOPID, $STR_SOPSTATUT, $OUtilisateur) {
+    public function deleteSocieteOperateur($LG_SOPID, $STR_SOPSTATUT, $OUtilisateur)
+    {
         $validation = false;
         try {
             $this->OSocieteOperateur = $this->getSocieteOperateurUnique($LG_SOPID);
@@ -988,12 +1019,13 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function showAllOrOneSocieteOperateur($search_value, $LG_SOCID, $LG_OPEID) {
+    public function showAllOrOneSocieteOperateur($search_value, $LG_SOCID, $LG_OPEID)
+    {
         $arraySql = array();
         try {
             $query = "SELECT t.LG_SOPID, t.STR_SOPPHONE, o.STR_OPENAME, o.STR_OPEDESCRIPTION FROM " . $this->SocieteOperateur . " t, " . $this->Operateur . " o WHERE t.LG_OPEID = o.LG_OPEID AND (t.STR_SOPPHONE LIKE :search_value OR o.STR_OPENAME LIKE :search_value OR o.STR_OPEDESCRIPTION LIKE :search_value) AND t.LG_SOCID LIKE :LG_SOCID AND t.LG_OPEID LIKE :LG_OPEID AND o.STR_OPESTATUT = :STR_STATUT AND t.STR_SOPSTATUT = :STR_STATUT ORDER BY o.STR_OPEDESCRIPTION";
             $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+            //exécution de la requête
             $res->execute(array('search_value' => $search_value . "%", 'LG_SOCID' => $LG_SOCID, 'LG_OPEID' => $LG_OPEID, 'STR_STATUT' => Parameters::$statut_enable));
             while ($rowObj = $res->fetch()) {
                 $arraySql[] = $rowObj;
@@ -1005,7 +1037,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $arraySql;
     }
 
-    public function createSocieteUtilisateur($LG_SOCID, $LG_UTIID, $OUtilisateur) {
+    public function createSocieteUtilisateur($LG_SOCID, $LG_UTIID, $OUtilisateur)
+    {
         $validation = false;
         $LG_SUTID = generateRandomString(20);
         try {
@@ -1033,7 +1066,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function getSocieteUtilisateur($LG_SOCID, $LG_UTIID) {
+    public function getSocieteUtilisateur($LG_SOCID, $LG_UTIID)
+    {
         $validation = null;
         try {
             $params_condition = array("LG_SOCID" => $LG_SOCID, "LG_UTIID" => $LG_UTIID);
@@ -1049,7 +1083,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function deleteSocieteUtilisateur($LG_SUTID, $OUtilisateur) {
+    public function deleteSocieteUtilisateur($LG_SUTID, $OUtilisateur)
+    {
         $validation = false;
         try {
             $params = array("LG_SUTID" => $LG_SUTID);
@@ -1068,13 +1103,14 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function showAllOrOneSocieteUtilisateur($search_value, $LG_SOCID, $LG_UTIID) {
+    public function showAllOrOneSocieteUtilisateur($search_value, $LG_SOCID, $LG_UTIID)
+    {
         $arraySql = array();
         try {
             $query = "SELECT DISTINCT t.LG_SUTID, u.LG_UTIID, u.STR_UTIFIRSTLASTNAME, u.STR_UTIPHONE, u.STR_UTIMAIL, u.STR_UTILOGIN, u.STR_UTIPIC, s.STR_SOCNAME, s.STR_SOCDESCRIPTION, s.STR_SOCLOGO FROM " . $this->SocieteUtilisateur . " t, " . $this->Utilisateur . " u, " . $this->Societe . " s, " . $this->Profile . " p "
-                    . "WHERE t.LG_UTIID = u.LG_UTIID AND t.LG_SOCID = s.LG_SOCID AND u.LG_PROID = p.LG_PROID AND (u.STR_UTIFIRSTLASTNAME LIKE :search_value OR u.STR_UTIPHONE LIKE :search_value OR s.STR_SOCNAME LIKE :search_value OR s.STR_SOCDESCRIPTION LIKE :search_value) AND t.LG_SOCID LIKE :LG_SOCID AND t.LG_UTIID LIKE :LG_UTIID AND u.STR_UTISTATUT = :STR_STATUT AND t.STR_SUTSTATUT = :STR_STATUT ORDER BY s.STR_SOCDESCRIPTION, u.STR_UTIFIRSTLASTNAME";
+                . "WHERE t.LG_UTIID = u.LG_UTIID AND t.LG_SOCID = s.LG_SOCID AND u.LG_PROID = p.LG_PROID AND (u.STR_UTIFIRSTLASTNAME LIKE :search_value OR u.STR_UTIPHONE LIKE :search_value OR s.STR_SOCNAME LIKE :search_value OR s.STR_SOCDESCRIPTION LIKE :search_value) AND t.LG_SOCID LIKE :LG_SOCID AND t.LG_UTIID LIKE :LG_UTIID AND u.STR_UTISTATUT = :STR_STATUT AND t.STR_SUTSTATUT = :STR_STATUT ORDER BY s.STR_SOCDESCRIPTION, u.STR_UTIFIRSTLASTNAME";
             $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+            //exécution de la requête
             $res->execute(array('search_value' => $search_value . "%", 'LG_SOCID' => $LG_SOCID, 'LG_UTIID' => $LG_UTIID, 'STR_STATUT' => Parameters::$statut_enable));
             while ($rowObj = $res->fetch()) {
                 $arraySql[] = $rowObj;
@@ -1086,13 +1122,14 @@ class ConfigurationManager implements ConfigurationInterface {
         return $arraySql;
     }
 
-    public function showAllOrOneSocieteUtilisateurLimit($search_value, $LG_SOCID, $LG_UTIID, $start, $limit) {
+    public function showAllOrOneSocieteUtilisateurLimit($search_value, $LG_SOCID, $LG_UTIID, $start, $limit)
+    {
         $arraySql = array();
         try {
             $query = "SELECT DISTINCT t.LG_SUTID, u.LG_UTIID, u.STR_UTIFIRSTLASTNAME, u.STR_UTIPHONE, u.STR_UTIMAIL, u.STR_UTILOGIN, u.STR_UTIPIC, s.STR_SOCNAME, s.STR_SOCDESCRIPTION, s.STR_SOCLOGO FROM " . $this->SocieteUtilisateur . " t, " . $this->Utilisateur . " u, " . $this->Societe . " s, " . $this->Profile . " p "
-                    . "WHERE t.LG_UTIID = u.LG_UTIID AND t.LG_SOCID = s.LG_SOCID AND u.LG_PROID = p.LG_PROID AND (u.STR_UTIFIRSTLASTNAME LIKE :search_value OR u.STR_UTIPHONE LIKE :search_value OR s.STR_SOCNAME LIKE :search_value OR s.STR_SOCDESCRIPTION LIKE :search_value) AND t.LG_SOCID LIKE :LG_SOCID AND t.LG_UTIID LIKE :LG_UTIID AND u.STR_UTISTATUT = :STR_STATUT AND t.STR_SUTSTATUT = :STR_STATUT ORDER BY u.STR_UTIFIRSTLASTNAME LIMIT " . $start . "," . $limit;
+                . "WHERE t.LG_UTIID = u.LG_UTIID AND t.LG_SOCID = s.LG_SOCID AND u.LG_PROID = p.LG_PROID AND (u.STR_UTIFIRSTLASTNAME LIKE :search_value OR u.STR_UTIPHONE LIKE :search_value OR s.STR_SOCNAME LIKE :search_value OR s.STR_SOCDESCRIPTION LIKE :search_value) AND t.LG_SOCID LIKE :LG_SOCID AND t.LG_UTIID LIKE :LG_UTIID AND u.STR_UTISTATUT = :STR_STATUT AND t.STR_SUTSTATUT = :STR_STATUT ORDER BY u.STR_UTIFIRSTLASTNAME LIMIT " . $start . "," . $limit;
             $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+            //exécution de la requête
             $res->execute(array('search_value' => $search_value . "%", 'LG_SOCID' => $LG_SOCID, 'LG_UTIID' => $LG_UTIID, 'STR_STATUT' => Parameters::$statut_enable));
             while ($rowObj = $res->fetch()) {
                 $arraySql[] = $rowObj;
@@ -1104,13 +1141,14 @@ class ConfigurationManager implements ConfigurationInterface {
         return $arraySql;
     }
 
-    public function totalSocieteUtilisateur($search_value, $LG_SOCID, $LG_UTIID) {
+    public function totalSocieteUtilisateur($search_value, $LG_SOCID, $LG_UTIID)
+    {
         $result = 0;
         try {
             $query = "SELECT COUNT(DISTINCT(u.LG_UTIID)) NOMBRE FROM " . $this->SocieteUtilisateur . " t, " . $this->Utilisateur . " u, " . $this->Societe . " s, " . $this->Profile . " p "
-                    . "WHERE t.LG_UTIID = u.LG_UTIID AND t.LG_SOCID = s.LG_SOCID AND u.LG_PROID = p.LG_PROID AND (u.STR_UTIFIRSTLASTNAME LIKE :search_value OR u.STR_UTIPHONE LIKE :search_value OR s.STR_SOCNAME LIKE :search_value OR s.STR_SOCDESCRIPTION LIKE :search_value) AND t.LG_SOCID LIKE :LG_SOCID AND t.LG_UTIID LIKE :LG_UTIID AND u.STR_UTISTATUT = :STR_STATUT AND t.STR_SUTSTATUT = :STR_STATUT";
+                . "WHERE t.LG_UTIID = u.LG_UTIID AND t.LG_SOCID = s.LG_SOCID AND u.LG_PROID = p.LG_PROID AND (u.STR_UTIFIRSTLASTNAME LIKE :search_value OR u.STR_UTIPHONE LIKE :search_value OR s.STR_SOCNAME LIKE :search_value OR s.STR_SOCDESCRIPTION LIKE :search_value) AND t.LG_SOCID LIKE :LG_SOCID AND t.LG_UTIID LIKE :LG_UTIID AND u.STR_UTISTATUT = :STR_STATUT AND t.STR_SUTSTATUT = :STR_STATUT";
             $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+            //exécution de la requête
             $res->execute(array('search_value' => $search_value . "%", 'LG_SOCID' => $LG_SOCID, 'LG_UTIID' => $LG_UTIID, 'STR_STATUT' => Parameters::$statut_enable));
             while ($rowObj = $res->fetch()) {
                 $result = $rowObj["NOMBRE"];
@@ -1122,12 +1160,13 @@ class ConfigurationManager implements ConfigurationInterface {
         return $result;
     }
 
-//fin gestion des sociétés
+    //fin gestion des sociétés
 
-    public function generateToken() {
+    public function generateToken()
+    {
         $validation = "";
         try {
-// URL de l'API
+            // URL de l'API
             $url = Parameters::$urlRootAPI . "/login/user";
 
 // Headers de la requête
@@ -1137,16 +1176,16 @@ class ConfigurationManager implements ConfigurationInterface {
                 "api_key: " . Parameters::$apikey
             );
 
-// Données à envoyer
+            // Données à envoyer
             $data = array(
                 'login' => Parameters::$apiusername,
                 'password' => Parameters::$apipassword
             );
 
-// Initialisation de cURL
+            // Initialisation de cURL
             $ch = curl_init();
 
-// Configuration de cURL
+            // Configuration de cURL
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_POST, true);
@@ -1165,16 +1204,17 @@ class ConfigurationManager implements ConfigurationInterface {
             curl_close($ch);
 
 //            echo $response;
-// Convertir le JSON en objet PHP
+            // Convertir le JSON en objet PHP
             $obj = json_decode($response);
 //            var_dump($obj);
-// Vérifier si la conversion a réussi
+
+            // Vérifier si la conversion a réussi
             if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
                 die('Erreur lors du décodage JSON');
             }
 
             $validation = $obj->access_token;
-// Accéder aux propriétés de l'objet JSON
+            // Accéder aux propriétés de l'objet JSON
             /* echo "ID: " . $obj->id . "<br>";
               echo "Name: " . $obj->name . "<br>";
               echo "Age: " . $obj->age . "<br>";
@@ -1189,7 +1229,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function getClient($LG_CLIID, $token = null) {
+    public function getClient($LG_CLIID, $token = null)
+    {
         $validation = null;
         try {
             $token = $token == null ? $this->generateToken() : $token;
@@ -1205,7 +1246,7 @@ class ConfigurationManager implements ConfigurationInterface {
 
             $ch = curl_init($url);
 
-// Configuration de cURL
+            // Configuration de cURL
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
@@ -1213,15 +1254,15 @@ class ConfigurationManager implements ConfigurationInterface {
             curl_close($ch);
 
             $obj = json_decode($response);
-// Vérifier si la conversion a réussi
+            // Vérifier si la conversion a réussi
             if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
                 Parameters::buildErrorMessage("Client inexistant. Veuille vérifier votre sélection");
                 return $validation;
-//die('Erreur lors du décodage JSON');
+                //die('Erreur lors du décodage JSON');
             }
 
             $obj = $obj->clients;
-            if (is_object($obj) && empty((array) $obj)) {
+            if (is_object($obj) && empty((array)$obj)) {
                 Parameters::buildErrorMessage("Client inexistant. Veuille vérifier votre sélection");
                 return $validation;
             }
@@ -1234,12 +1275,13 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function getAgence($LG_AGEID) {
+    public function getAgence($LG_AGEID)
+    {
         $arraySql = array();
         try {
             $query = "SELECT t.*, s.lg_socid, s.lg_socextid FROM " . $this->Agence . " t, " . $this->Societe . " s WHERE t.lg_socid = s.lg_socid and (t.lg_ageid = :lg_ageid or t.str_agename = :lg_ageid) and t.str_agestatut != :str_agestatut";
             $res = $this->dbconnnexion->prepare($query);
-//exécution de la requête
+            //exécution de la requête
             $res->execute(array("lg_ageid" => $LG_AGEID, 'str_agestatut' => Parameters::$statut_delete));
             while ($rowObj = $res->fetch()) {
                 $arraySql[] = $rowObj;
@@ -1251,7 +1293,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $arraySql;
     }
 
-    public function createListe($LG_TYLID, $STR_LSTDESCRIPTION, $STR_LSTVALUE, $OUtilisateur) {
+    public function createListe($LG_TYLID, $STR_LSTDESCRIPTION, $STR_LSTVALUE, $OUtilisateur)
+    {
         $validation = "";
         try {
             $LG_LSTID = generateRandomNumber();
@@ -1273,6 +1316,7 @@ class ConfigurationManager implements ConfigurationInterface {
                     Parameters::buildErrorMessage("Échec de la création de l'élément.");
                 }
             }
+
         } catch (\Exception $exc) {
             error_log($exc->getMessage());
             Parameters::buildErrorMessage("Impossible de créer l'élément, veuillez contacter votre administrateur");
@@ -1281,7 +1325,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function updateLastBackUpDate() {
+    public function updateLastBackUpDate()
+    {
         $validation = false;
         try {
             $params_to_update = [
@@ -1296,6 +1341,7 @@ class ConfigurationManager implements ConfigurationInterface {
                     Parameters::buildErrorMessage("Echec de la mise à jour de la date");
                 }
             }
+
         } catch (\Exception $exc) {
             error_log($exc->getMessage());
             Parameters::buildErrorMessage("Impossible d'effectuer cette opération, veuillez contacter votre administrateur");
@@ -1304,8 +1350,9 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//Moi
-    public function getListe($LG_LSTID): ?array {
+    //Moi
+    public function getListe($LG_LSTID): ?array
+    {
         $validation = null;
         Parameters::buildErrorMessage("Item inexistant");
 
@@ -1324,9 +1371,11 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//moi
+
+    //moi
     public function createAgence($STR_AGENAME, $STR_AGEDESCRIPTION, $STR_AGELOCALISATION,
-            $STR_AGEPHONE, $LG_SOCID, $OUtilisateur, $STR_AGESTATUT = null): string {
+                                 $STR_AGEPHONE, $LG_SOCID, $OUtilisateur, $STR_AGESTATUT = null): string
+    {
         $validation = "";
         $LG_AGEID = generateRandomString(20);
         $LG_SOCID = $this->getSociete($LG_SOCID);
@@ -1357,8 +1406,9 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//moi
-    public function getTrueAgence($LG_AGEID): ?array {
+    //moi
+    public function getTrueAgence($LG_AGEID): ?array
+    {
         $validation = null;
         Parameters::buildErrorMessage("Agence inexistante");
 
@@ -1376,8 +1426,9 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//moi
-    public function createUtilisateur($STR_UTIFIRSTLASTNAME, $STR_UTIPHONE, $STR_UTIMAIL, $STR_UTILOGIN, $STR_UTIPASSWORD, $LG_AGEID, $STR_UTIPIC, $LG_PROID, $OUtilisateur, $STR_UTISTATUT = null): string {
+    //moi
+    public function createUtilisateur($STR_UTIFIRSTLASTNAME, $STR_UTIPHONE, $STR_UTIMAIL, $STR_UTILOGIN, $STR_UTIPASSWORD, $LG_AGEID, $STR_UTIPIC, $LG_PROID, $OUtilisateur, $STR_UTISTATUT = null): string
+    {
         $validation = "";
         $LG_UTIID = generateRandomNumber(20);
         $LG_AGEID = $this->getTrueAgence($LG_AGEID);
@@ -1413,8 +1464,9 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//moi
-    public function updateUtilisateur($LG_UTIID, $STR_UTISTATUT, $STR_UTIFIRSTLASTNAME, $STR_UTIPHONE, $STR_UTIMAIL, $STR_UTILOGIN, $LG_AGEID, $STR_UTIPIC, $LG_PROID, $OUtilisateur = null, $STR_UTIPASSWORD = null): bool {
+    //moi
+    public function updateUtilisateur($LG_UTIID, $STR_UTISTATUT, $STR_UTIFIRSTLASTNAME, $STR_UTIPHONE, $STR_UTIMAIL, $STR_UTILOGIN, $LG_AGEID, $STR_UTIPIC, $LG_PROID, $OUtilisateur = null, $STR_UTIPASSWORD = null): bool
+    {
         $validation = false;
         $LG_AGEID = $this->getTrueAgence($LG_AGEID);
         $LG_PROID = $this->getProfile($LG_PROID);
@@ -1434,7 +1486,7 @@ class ConfigurationManager implements ConfigurationInterface {
                 return $validation;
             }
 
-            $params_condition = array("lg_utiid" => $this->OUtilisateur[0]['lg_utiid']);
+            $params_condition = array("LG_UTIID" => $this->OUtilisateur[0]['lg_utiid']);
             if ($STR_UTIPIC) {
                 $STR_UTIPIC = uploadFile(Parameters::$rootFolderAbsolute . "avatars/" . $LG_UTIID . "/", $STR_UTIPIC);
             }
@@ -1461,7 +1513,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function deleteUtilisateur($LG_UTIID, $OUtilisateur) {
+    public function deleteUtilisateur($LG_UTIID, $OUtilisateur)
+    {
         $validation = false;
         Parameters::buildErrorMessage("Échec de suppression de l'utilisateur");
         try {
@@ -1487,8 +1540,10 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//moi
-    public function createDocument($P_KEY, $STR_DOCPATH, $LG_LSTID, $OUtilisateur): string {
+
+    //moi
+    public function createDocument($P_KEY, $STR_DOCPATH, $LG_LSTID, $OUtilisateur): string
+    {
         $validation = "";
         $LG_DOCID = generateRandomString(20);
         $LG_LSTID = $this->getListe($LG_LSTID);
@@ -1515,8 +1570,9 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-//moi
-    public function getDocument($LG_DOCID): ?array {
+    //moi
+    public function getDocument($LG_DOCID): ?array
+    {
         $validation = null;
         Parameters::buildErrorMessage("Document inexistant");
 
@@ -1534,7 +1590,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return $validation;
     }
 
-    public function showAllOrOneClientRequest($FILTERS_OPTIONS, $LIMIT, $PAGE) {
+    public function showAllOrOneClientRequest($FILTERS_OPTIONS, $LIMIT, $PAGE)
+    {
         $arraySql = array();
         $WHERE = [];
         $select = "*";
@@ -1565,16 +1622,12 @@ class ConfigurationManager implements ConfigurationInterface {
 
                 foreach ($FILTERS_OPTIONS as $key => $value) {
                     if ($key == "search") {
-                        for ($i = 0;
-                                $i < 2;
-                                $i++) {
+                        for ($i = 0; $i < 2; $i++) {
                             $params[] = "%" . $value . "%";
                         }
                     }
                     if ($key == "status") {
-                        for ($i = 0;
-                                $i < 2;
-                                $i++) {
+                        for ($i = 0; $i < 2; $i++) {
                             $params[] = $value;
                         }
                     }
@@ -1617,6 +1670,7 @@ class ConfigurationManager implements ConfigurationInterface {
             $res = $this->dbconnnexion->prepare($queryCount);
             $res->execute($params);
             $count = $res->fetchAll(PDO::FETCH_ASSOC);
+
         } catch (\Exception $exc) {
             var_dump($exc->getMessage());
             Parameters::buildErrorMessage("Impossible d'obtenir toutes les demandes");
@@ -1624,7 +1678,8 @@ class ConfigurationManager implements ConfigurationInterface {
         return ["data" => $arraySql, "total" => $count[0]["count"] == null ? 0 : $count[0]["count"]];
     }
 
-    public function getClientDemande($LG_SOCID, $STATUT = null) {
+    public function getClientDemande($LG_SOCID, $STATUT = null)
+    {
         $validation = "";
         try {
             $query = "select distinct *,
@@ -1654,7 +1709,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function createClientExternal($LG_SOCID, $OUtilisateur) {
+    public function createClientExternal($LG_SOCID, $OUtilisateur)
+    {
         $validation = "";
         $error = "";
         Parameters::buildSuccessMessage("Création du client chez 8sens réussi . ");
@@ -1667,14 +1723,15 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
                 "token: " . $this->generateToken()
             );
 
+
             $demandeData = $this->getClientDemande($LG_SOCID);
             if ($demandeData == null) {
                 Parameters::buildErrorMessage("Échec de la création du client chez 8sens. Veuillez contacté votre administrateur");
                 return $validation;
             }
             $data = array(
-                "clilib" => $demandeData[0][0]['str_socname'], //STR_SOCNAME
-                "clilogin" => $demandeData[0][0]['str_utilogin'], //str_utilogin
+                "clilib" => $demandeData[0][0]['str_socname'],//STR_SOCNAME
+                "clilogin" => $demandeData[0][0]['str_utilogin'],//str_utilogin
                 "moctel" => $demandeData[0][0]['str_socphone'],
                 "mocport" => $demandeData[0][0]['str_socphone'],
                 "mocmail" => $demandeData[0][0]['str_socmail'],
@@ -1700,18 +1757,19 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
 
             if (!property_exists($obj, 'error')) {
                 $validation = $obj->CliID;
-//Obtenir les infos de l'utilisateur
+                //Obtenir les infos de l'utilisateur
                 $uti_data = $this->getUtilisateur($demandeData[0][0]['lg_utiid']);
-//mise à jour
+                //mise à jour
                 $this->updateUtilisateur($uti_data[0]['lg_utiid'], Parameters::$statut_enable, $uti_data[0]['str_utifirstlastname'], $uti_data[0]['str_utiphone'], $uti_data[0]['str_utimail'], $uti_data[0]['str_utilogin'], $uti_data[0]['lg_ageid'], null, $uti_data[0]['lg_proid'], $OUtilisateur ?: null, $uti_data[0]['str_utipassword']);
 
-//Obtenir les infos de la societe
+                //Obtenir les infos de la societe
                 $soc_data = $this->getSociete($demandeData[0][0]['lg_socid']);
-                $this->updateSociete($soc_data[0]['lg_socid'], $obj->CliID, Parameters::$statut_enable, $soc_data[0]['str_socdescription'], $soc_data[0]['str_socname'], null, $soc_data[0]['str_socmail'], $soc_data[0]['str_socphone'], $soc_data[0]["str_socsiret"], $soc_data[0]['lg_lsttypesocid'], $soc_data[0]['lg_lstpayid'], $soc_data[0]['str_soccode'], $OUtilisateur ?: null);
+                $this->updateSociete($soc_data[0]['lg_socid'], $obj->CliID, Parameters::$statut_enable, $soc_data[0]['str_socdescription'], $soc_data[0]['str_socname'], null, $soc_data[0]['str_socmail'], $soc_data[0]['str_socphone'], $soc_data[0]["str_socsiret"], $soc_data[0]['lg_lsttypesocid'], $soc_data[0]['lg_lstpayid'], $soc_data[0]['str_soccode'], $soc_data[0]['dbl_socplafond'], $OUtilisateur ?: null);
 
                 Parameters::buildSuccessMessage("Création du client réussi avec ID: " . $obj->CliID);
 
                 $validation = $this->getClientDemande($demandeData[0][0]['lg_socid']);
+
             }
         } catch (Exception $exc) {
             error_log($exc->getTraceAsString());
@@ -1720,8 +1778,9 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-//moi
-    public function deleteProduitSubstitution($LG_PROSUBID) {
+    //moi
+    public function deleteProduitSubstitution($LG_PROSUBID)
+    {
         $validation = "";
         try {
             $this->OProduitSubstitution = $this->getProduitSubstitution($LG_PROSUBID);
@@ -1743,7 +1802,9 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function createDemande($value) {
+
+    public function createDemande($value)
+    {
         $validation = false;
 
         try {
@@ -1772,7 +1833,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function createStat($table, $PCVID, $PCVGCLIID, $PCVDATE, $PCVLIB, $PCVREF, $PCVMTHT, $PCVMTTTC, $PCVMTTOTAL, $PCVETATFNUF = null) {
+    public function createStat($table, $PCVID, $PCVGCLIID, $PCVDATE, $PCVLIB, $PCVREF, $PCVMTHT, $PCVMTTTC, $PCVMTTOTAL, $PCVETATFNUF = null)
+    {
         $validation = "";
         Parameters::buildErrorMessage("Échec de création du stat devis");
 
@@ -1796,7 +1858,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function getStat($table, $PCVID) {
+    public function getStat($table, $PCVID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("Item inexistant");
         try {
@@ -1812,7 +1875,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function updateStat($table, $PCVID, $PCVGCLIID, $PCVDATE, $PCVLIB, $PCVREF, $PCVMTHT, $PCVMTTTC, $PCVMTTOTAL, $PCVETATFNUF = null) {
+    public function updateStat($table, $PCVID, $PCVGCLIID, $PCVDATE, $PCVLIB, $PCVREF, $PCVMTHT, $PCVMTTTC, $PCVMTTOTAL, $PCVETATFNUF = null)
+    {
         $validation = "";
         Parameters::buildErrorMessage("Échec de la mise à jour");
         try {
@@ -1836,16 +1900,15 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function uploadOneOrSeveralDocuments($DOCUMENTS, $LG_SOCID, $OUtilisateur): array {
+    public function uploadOneOrSeveralDocuments($DOCUMENTS, $LG_SOCID, $OUtilisateur): array
+    {
         $files = $DOCUMENTS[0];
         $filesCount = count($files['name']);
         $post = $DOCUMENTS[1];
 
         $array = [];
 
-        for ($i = 0;
-                $i < $filesCount;
-                $i++) {
+        for ($i = 0; $i < $filesCount; $i++) {
             $fileTmpName = $files['tmp_name'][$i]['file'];
 //            var_dump($fileTmpName);
             $fileName = $files['name'][$i]['file'];
@@ -1871,8 +1934,9 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $array;
     }
 
-//moi
-    public function rejectRegistration($LG_SOCID, $OUtilisateur) {
+    //moi
+    public function rejectRegistration($LG_SOCID, $OUtilisateur)
+    {
         $validation = null;
         try {
             $this->OSociete = $this->getSociete($LG_SOCID);
@@ -1901,7 +1965,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function markProductAsViewed($LG_PROID, $OUtilisateur) {
+    public function markProductAsViewed($LG_PROID, $OUtilisateur)
+    {
         $validation = false;
         $StockManger = new StockManager();
         $product = $StockManger->showAllOrOneProduct_legacy($LG_PROID);
@@ -1927,8 +1992,9 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-//moi
-    public function uploadMainImageProduct($PICTURE, $LG_PROID, $OUtilisateur) {
+    //moi
+    public function uploadMainImageProduct($PICTURE, $LG_PROID, $OUtilisateur)
+    {
         $validation = false;
         Parameters::buildErrorMessage("Échec de l'upload de l'image principale du produit " . $LG_PROID);
         $rootFolderRelative = __DIR__ . "/../images/";
@@ -1946,6 +2012,7 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
 
                 if (in_array(strtolower($mainFileExtension), $imageExtensions)) {
                     $STR_PROPIC_MAIN = uploadFile($rootFolderRelative . "produits/" . $LG_PROID . "/", $mainImage, true);
+
 
                     $params_condition = array("lg_proid" => $LG_PROID);
                     $params_to_update = array(
@@ -1971,7 +2038,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function uploadThumbImagesProduct($PICTURES, $LG_PROID, $OUtilisateur) {
+    public function uploadThumbImagesProduct($PICTURES, $LG_PROID, $OUtilisateur)
+    {
         $validation = [];
         $rootFolderRelative = __DIR__ . "/../images/";
         try {
@@ -2007,7 +2075,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function deleteDocument($LG_DOCID, $OUtilisateur) {
+    public function deleteDocument($LG_DOCID, $OUtilisateur)
+    {
         $validation = "";
         try {
             $this->ODocument = $this->getDocument($LG_DOCID);
@@ -2030,7 +2099,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function deleteProductMainImage($LG_PROID, $OUtilisateur) {
+    public function deleteProductMainImage($LG_PROID, $OUtilisateur)
+    {
         $validation = false;
         $StockManager = new StockManager();
         try {
@@ -2056,7 +2126,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function showAllOrOneCustomerRemote($search_value = null) {
+    public function showAllOrOneCustomerRemote($search_value = null)
+    {
 
         $arraySqlloadExternalCustomer = array();
         $token = "";
@@ -2074,7 +2145,7 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
 
             $ch = curl_init($url);
 
-// Configuration de cURL
+            // Configuration de cURL
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
@@ -2082,8 +2153,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
             curl_close($ch);
 
             $obj = json_decode($response);
-//var_dump($obj);
-// Vérifier si la conversion a réussi
+            //var_dump($obj);
+            // Vérifier si la conversion a réussi
             if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
                 die('Erreur lors du décodage JSON');
             }
@@ -2095,7 +2166,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $arraySql;
     }
 
-    public function showAllDocumentRemote($search_value, $date = null) {
+    public function showAllDocumentRemote($search_value, $date = null)
+    {
 
         $array = array();
         try {
@@ -2113,7 +2185,7 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
 
             $ch = curl_init($url);
 
-// Configuration de cURL
+            // Configuration de cURL
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
@@ -2121,19 +2193,21 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
             curl_close($ch);
 
             $obj = json_decode($response);
-// Vérifier si la conversion a réussi
+            // Vérifier si la conversion a réussi
             if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
                 die('Erreur lors du décodage JSON');
             }
 
             $array = $obj;
+
         } catch (\Exception $exc) {
             var_dump($exc->getTraceAsString());
         }
         return $array;
     }
 
-    public function loadExternalCustomer() {
+    public function loadExternalCustomer()
+    {
         $array = array();
         try {
             $array = $this->showAllOrOneCustomerRemote();
@@ -2147,16 +2221,20 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
                     $this->updateDemande($value, $societe[0]["lg_socid"]);
                 }
             }
+
         } catch (\Exception $exc) {
             error_log($exc->getMessage());
         }
         return $array;
+
     }
 
-    public function updateDemande($value, $LG_SOCID) {
+    public function updateDemande($value, $LG_SOCID)
+    {
         $validation = false;
         try {
-            $this->updateSociete($LG_SOCID, $value->CliID, Parameters::$statut_enable, $value->CliLib, $value->CliLib, null, $value->MocMail, $value->MocTel, $value->CliSiret, "0000000000000000000000000000000000000788", "0000000000000000000000000000000000000650", $value->CliNaf, 3);
+//            $this->updateSociete($LG_SOCID, $value->CliID, Parameters::$statut_enable, $value->CliLib, $value->CliLib, null, $value->MocMail, $value->MocTel, $value->CliSiret, "0000000000000000000000000000000000000788", "0000000000000000000000000000000000000650", $value->CliNaf, 3); //a decommenter en cas de probleme
+            $this->updateSociete($LG_SOCID, $value->CliID, Parameters::$statut_enable, $value->CliLib, $value->CliLib, null, $value->MocMail, $value->MocTel, $value->CliSiret, "0000000000000000000000000000000000000788", "0000000000000000000000000000000000000650", $value->CliNaf, $value->CliPlaf);
 
             $agence = Find($this->Agence, ["lg_socid" => $LG_SOCID], $this->dbconnnexion);
 
@@ -2172,10 +2250,12 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function loadExternalDocuments($table, $search, $date) {
+    public function loadExternalDocuments($table, $search, $date)
+    {
         $array = array();
         try {
             $array = $this->showAllDocumentRemote($search, $date);
+
 
             foreach ($array->reqsel as $value) {
                 if ($table === "commande") {
@@ -2186,8 +2266,10 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
                             Persist("commande", ["lg_commid" => $value->PcvID, "dt_commcreated" => $value->PcvDate, "dt_commupdated" => $value->PcvDate, "str_commstatut" => Parameters::$statut_closed, "dbl_commmtht" => $value->PcvMtHT, "dbl_commmtttc" => $value->PcvMtTTC, "lg_ageid" => $user[0]["lg_ageid"], "lg_uticreatedid" => $user[0]['lg_utiid'], "lg_ageoriginid" => $user[0]['lg_ageid']], $this->dbconnnexion);
                         }
                     }
+
                 } else {
                     $item = $this->getStat($table, $value->PcvID);
+
 
                     $PCVETATFNUF = $table == "stat_facture" ? $value->PcvEtatFNuf : null;
 
@@ -2200,13 +2282,17 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
             }
 
             Parameters::buildSuccessMessage("Documents chargés avec succès");
+
         } catch (\Exception $exc) {
             var_dump($exc->getTraceAsString());
         }
         return $array;
+
     }
 
-    public function uploadLocalImageProduct($DIRECTORY, $OUtilisateur) {
+
+    public function uploadLocalImageProduct($DIRECTORY, $OUtilisateur)
+    {
         $localImagesFolder = __DIR__ . "/../images/images-produits-extranet/";
         $validDirectory = $localImagesFolder . $DIRECTORY;
         $stockManager = new StockManager();
@@ -2270,10 +2356,11 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
                     $destinationPath = $destinationFolder . $prefixe . '-' . str_replace(" ", "", $cleanedFileName);
                     $STR_PROPIC_MAIN = $prefixe . '-' . str_replace(" ", "", $cleanedFileName);
 
+
                     if (copy($filePath, $destinationPath)) {
                         echo "Fait :" . $product[0]["lg_proid"] . " " . $STR_PROPIC_MAIN;
 
-// Mise à jour de l'image principale dans la base de données
+                        // Mise à jour de l'image principale dans la base de données
                         $params_condition = array("lg_proid" => $product[0]["lg_proid"]);
                         $params_to_update = array(
                             "str_propic" => $STR_PROPIC_MAIN,
@@ -2309,6 +2396,7 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
                         }
                     }
                 }
+
             }
         } catch (\Exception $exc) {
             var_dump($exc->getMessage());
@@ -2317,57 +2405,55 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $failedTab;
     }
 
-    public function sendEmail($SUBJECT, $BODY, $TO, $FROM) {
+    public function sendEmail($SUBJECT, $BODY, $TO, $FROM)
+    {
         $validation = false;
         Parameters::buildErrorMessage("Erreur lors de l'envoi de l'email");
 
         $mail = new PHPMailer(true);
 
         try {
-//Server settings
-            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+            //Server settings
+//            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
 
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = "davysgbala01@gmail.com";
-            $mail->Password = "jyuemshgdfpghwjj";
-            $mail->SMTPSecure = "PHPMailer::ENCRYPTION_STARTTLS";
+            $mail->Username = Parameters::$SMTP_USERNAME;
+            $mail->Password = Parameters::$SMTP_PASSWORD;
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
             $mail->Port = 587;
-            $mail->SMTPOptions = array(
-            'ssl' => array(
-                'verify_peer'      => false,
-                'verify_peer_name' => false,
-                'allow_self_signed'=> true
-            )
-        );
 
-//Recipients
+            //Recipients
             $mail->setFrom($FROM);
             $mail->addAddress($TO);
 
             $htmlTemplate = file_get_contents(__DIR__ . '/../SN-Proveci-email-template.html');
             $htmlContent = str_replace('{MSG}', $BODY, $htmlTemplate);
 
-//Content
+
+            //Content
             $mail->isHTML(true);
             $mail->Subject = $SUBJECT;
 //            $mail->Body = $BODY;
             $mail->Body = $htmlContent;
             $mail->CharSet = 'UTF-8';
 
+
             if ($mail->send()) {
                 Parameters::buildSuccessMessage("Email envoyé avec succès");
                 $validation = true;
             }
+
         } catch (Exception $e) {
-            var_dump($e);
+            var_dump($mail->ErrorInfo);
         }
 
         return $validation;
     }
 
-    public function showAllOrOneDocument($FILTER_OPTIONS): array {
+    public function showAllOrOneDocument($FILTER_OPTIONS): array
+    {
         $arraySql = array();
         $WHERE = [];
         try {
@@ -2417,7 +2503,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $arraySql ? $arraySql[0] : [];
     }
 
-    public function showAllOrOneListe($search_value, $LG_TYLID): array {
+    public function showAllOrOneListe($search_value, $LG_TYLID): array
+    {
         $arraySql = array();
         try {
             $query = "
@@ -2453,7 +2540,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $arraySql ? $arraySql[0] : [];
     }
 
-    public function showAllProductImages($LG_PROID) {
+    public function showAllProductImages($LG_PROID)
+    {
         $arraySql = array();
         try {
 
@@ -2478,7 +2566,9 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $arraySql;
     }
 
-    public function createProfil($STR_PRONAME, $STR_PRODESCRIPTION, $LG_LSTID, $OUtilisateur) {
+
+    public function createProfil($STR_PRONAME, $STR_PRODESCRIPTION, $LG_LSTID, $OUtilisateur)
+    {
         $validation = "";
         try {
             $this->OListe = $this->getListe($LG_LSTID);
@@ -2502,7 +2592,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function updateProfil($LG_PROID, $STR_PRONAME, $STR_PRODESCRIPTION, $LG_LSTID, $OUtilisateur) {
+    public function updateProfil($LG_PROID, $STR_PRONAME, $STR_PRODESCRIPTION, $LG_LSTID, $OUtilisateur)
+    {
         $validation = "";
         try {
             $this->OProfile = $this->getProfile($LG_PROID);
@@ -2526,7 +2617,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function deleteProfil($LG_PROID, $OUtilisateur) {
+    public function deleteProfil($LG_PROID, $OUtilisateur)
+    {
         $validation = "";
         try {
             $this->OProfile = $this->getProfile($LG_PROID);
@@ -2549,7 +2641,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function getPrivilege($LG_PRIID) {
+    public function getPrivilege($LG_PRIID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("Privilège inexistant");
         try {
@@ -2567,7 +2660,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function getProfilPrivilege($LG_PROID, $LG_PRIID) {
+    public function getProfilPrivilege($LG_PROID, $LG_PRIID)
+    {
         $validation = null;
         Parameters::buildErrorMessage("ProfilPrivilège inexistant");
         try {
@@ -2585,7 +2679,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function showAllOrOnePrivilege($FILTER_OPTIONS, $LIMIT, $PAGE) {
+    public function showAllOrOnePrivilege($FILTER_OPTIONS, $LIMIT, $PAGE)
+    {
         $arraySql = array();
         $select = "*";
         $query = [];
@@ -2607,9 +2702,7 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
                 $params = [];
                 foreach ($FILTER_OPTIONS as $key => $value) {
                     if ($key === "search") {
-                        for ($i = 0;
-                                $i < 7;
-                                $i++) {
+                        for ($i = 0; $i < 7; $i++) {
                             $params[] = "%" . $value . "%";
                         }
                     } else {
@@ -2636,6 +2729,7 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
             $count = $res->fetchAll(PDO::FETCH_ASSOC);
 
             Parameters::buildSuccessMessage("Privilèges récupérés avec succès");
+
         } catch (\Exception $exc) {
             var_dump($exc->getMessage());
             Parameters::buildErrorMessage("Échec de récupération des privilèges. Veuillez contacter votre administrateur");
@@ -2644,7 +2738,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return ["data" => $arraySql, "total" => $count[0]["total"] == null ? 0 : ($count[0]["total"])];
     }
 
-    public function createPrivilege($STR_PRINAME, $STR_PRIDESCRIPTION, $STR_PROIURL, $STR_PRITYPE, $STR_PRIKIND, $STR_PRICLASS, $INT_PRIPRIORITY, $LG_PRIPARENTID, $LG_PRIGROUPID, $OUtilisateur) {
+    public function createPrivilege($STR_PRINAME, $STR_PRIDESCRIPTION, $STR_PROIURL, $STR_PRITYPE, $STR_PRIKIND, $STR_PRICLASS, $INT_PRIPRIORITY, $LG_PRIPARENTID, $LG_PRIGROUPID, $OUtilisateur)
+    {
         $validation = "";
         try {
             $params = array("lg_priid" => generateRandomNumber(), "str_priname" => $STR_PRINAME, "str_pridescription" => $STR_PRIDESCRIPTION, "str_priurl" => $STR_PROIURL, "str_pritype" => $STR_PRITYPE, "str_prikind" => $STR_PRIKIND, "str_priclass" => $STR_PRICLASS, "int_pripriority" => $INT_PRIPRIORITY, "lg_priparentid" => $LG_PRIPARENTID, "lg_prigroupid" => $LG_PRIGROUPID, "dt_pricreated" => get_now(), "str_pristatut" => Parameters::$statut_enable, "lg_uticreatedid" => $OUtilisateur ? $OUtilisateur[0]['lg_utiid'] : Parameters::$defaultAdminId);
@@ -2663,7 +2758,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function updatePrivilege($LG_PRIID, $STR_PRINAME, $STR_PRIDESCRIPTION, $STR_PROIURL, $STR_PRITYPE, $STR_PRIKIND, $STR_PRICLASS, $INT_PRIPRIORITY, $LG_PRIPARENTID, $LG_PRIGROUPID, $OUtilisateur) {
+    public function updatePrivilege($LG_PRIID, $STR_PRINAME, $STR_PRIDESCRIPTION, $STR_PROIURL, $STR_PRITYPE, $STR_PRIKIND, $STR_PRICLASS, $INT_PRIPRIORITY, $LG_PRIPARENTID, $LG_PRIGROUPID, $OUtilisateur)
+    {
         $validation = "";
         try {
             $this->OPrivilege = $this->getPrivilege($LG_PRIID);
@@ -2687,7 +2783,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function deletePrivilege($LG_PRIID, $OUtilisateur) {
+    public function deletePrivilege($LG_PRIID, $OUtilisateur)
+    {
         $validation = "";
         try {
             $this->OPrivilege = $this->getPrivilege($LG_PRIID);
@@ -2710,7 +2807,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function assignPrivilegesToProfile($LG_PROID, $LG_PRIIDS) {
+    public function assignPrivilegesToProfile($LG_PROID, $LG_PRIIDS)
+    {
         $failedTab = [];
         $LG_PRIIDS = is_array($LG_PRIIDS) ? $LG_PRIIDS : [$LG_PRIIDS];
         try {
@@ -2760,7 +2858,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $failedTab;
     }
 
-    public function showAllProfilPrivileges($LG_PROID) {
+    public function showAllProfilPrivileges($LG_PROID)
+    {
         $validation = [];
         try {
             $query = "
@@ -2785,7 +2884,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function removePrivilegesFromProfile($LG_PROID, $LG_PRIIDS): bool {
+    public function removePrivilegesFromProfile($LG_PROID, $LG_PRIIDS): bool
+    {
         $validation = false;
         try {
             $LG_PRIIDS = is_array($LG_PRIIDS) ? $LG_PRIIDS : [$LG_PRIIDS];
@@ -2793,6 +2893,7 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
 //            $query = "DELETE FROM profile_privilege WHERE lg_proid = ? AND lg_priid IN (" . implode(',', array_fill(0, count($LG_PRIIDS), '?')) . ")";
 
             $query = "UPDATE profile_privilege SET str_pprstatut = ? WHERE lg_proid = ? AND lg_priid IN (" . implode(',', array_fill(0, count($LG_PRIIDS), '?')) . ")";
+
 
             $stmt = $this->dbconnnexion->prepare($query);
 
@@ -2812,7 +2913,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function createHistory($params) {
+    public function createHistory($params)
+    {
         Parameters::buildErrorMessage("Échec de création de l'historique");
         try {
             if ($this->dbconnnexion) {
@@ -2826,7 +2928,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         }
     }
 
-    public function loadExternalProductsByInvoice($invoice) {
+    public function loadExternalProductsByInvoice($invoice)
+    {
         $CommandeManager = new CommandeManager();
         try {
             $products = $CommandeManager->showAllOrOneInvoiceProducts($invoice["PcvGCliID"], $invoice["PcvID"]);
@@ -2835,15 +2938,17 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
             $month = $dateTime->format('F');
             $year = $dateTime->format('Y');
             foreach ($products->lines as $product) {
-                $this->createHistory([strtolower($month) => is_numeric($product->PlvQteUV) ? (int) $product->PlvQteUV : null, "year" => $year, "str_procode" => $product->PlvCode, "lg_socextid" => $invoice["PcvGCliID"]]);
+                $this->createHistory([strtolower($month) => is_numeric($product->PlvQteUV) ? (int)$product->PlvQteUV : null, "year" => $year, "str_procode" => $product->PlvCode, "lg_socextid" => $invoice["PcvGCliID"]]);
             }
+
         } catch (\Exception $exception) {
             error_log($exception->getMessage());
             Parameters::buildErrorMessage("Impossible d'effectuer cette opération, veuillez contactez votre administrateur");
         }
     }
 
-    public function showAllOrOneDocumentAndType($P_KEY) {
+    public function showAllOrOneDocumentAndType($P_KEY)
+    {
         $validation = [];
         try {
             $query = "SELECT * FROM $this->Document d INNER JOIN $this->Liste l ON d.lg_lstid = l.lg_lstid WHERE p_key = :P_KEY";
@@ -2860,7 +2965,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    public function slugifyProductName() {
+    public function slugifyProductName()
+    {
         $StockManager = new StockManager();
         try {
             $products = $StockManager->showAllOrOneProduct([], 999999, 1);
@@ -2882,7 +2988,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         }
     }
 
-    public function changeDocumentStatut($LG_DOCID, $OUtilisateur) {
+    public function changeDocumentStatut($LG_DOCID, $OUtilisateur)
+    {
         $validation = false;
         Parameters::buildErrorMessage("Impossible de désactiver le document");
         try {
@@ -2903,72 +3010,29 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $validation;
     }
 
-    #[\Override]
-    public function resetPasswordUtilisateur($STR_UTIMAIL, $OUtilisateur = null) {
-    $validation = false;
-    $response = array();
-    try {
-        // si la connexion à la base de données est valide
-        /* if (!$this->dbconnnexion) {
-            $response['code_statut'] = "0";
-            $response['desc_statut'] = "Erreur de connexion à la base de données";
-            echo json_encode($response);
-            return $validation;
-        }*/
+    public function createProduitSubstitution($LG_PROPARENTID, $LG_PROKIDID, $OUtilisateur) {
         
-        $this->OUtilisateur = $this->getUtilisateur($STR_UTIMAIL);
-
-        if ($this->OUtilisateur == null) {
-            $response['code_statut'] = "0";
-            $response['desc_statut'] = "Echec de reinitialisation du mot de passe. Adresse incorrecte";
-            echo json_encode($response);
-            return $validation;
-        }
-
-        $STR_UTIPASSWORD = generateRandomString(5);
-        $hashedPassword = sha1($STR_UTIPASSWORD);
-
-        $params_condition = array("lg_utiid" => $this->OUtilisateur[0]['lg_utiid']);
-        $params_to_update = array("str_utipassword" => $hashedPassword, "lg_utiupdatedid" => $this->OUtilisateur[0]['lg_utiid'], "dt_utiupdated" => get_now());
-
-        if (Merge($this->Utilisateur, $params_to_update, $params_condition, $this->dbconnnexion)) {
-            $SUBJECT = "Réinitialisation de votre de passe SN Proveci";
-            
-            $BODY = "Bonjour cher client " . $this->OUtilisateur[0]['str_utifirstlastname'] . ",<br><br>";
-            $BODY .= "Vous trouverez ci-dessous, vos nouveaux identifiants de connexion :<br>";
-            $BODY .= "Login : " . $this->OUtilisateur[0]['str_utilogin'] . "<br>";
-            $BODY .= "Mot de passe : " . $STR_UTIPASSWORD . "<br><br>";
-            
-            $htmlTemplate = file_get_contents(__DIR__ . '/../SN-Proveci-email-template.html');
-            $htmlContent = str_replace('{MSG}', $BODY, $htmlTemplate);
-            
-            $FROM = "habibrolandt@gmail.com";
-            $TO = $this->OUtilisateur[0]['str_utimail'];
-            
-            $emailrecu = $this->sendEmail($SUBJECT, $htmlContent, $TO, $FROM);
-            if ($emailrecu) {
-                $response['code_statut'] = "1";
-                $response['desc_statut'] = "Mot de passe réinitialisé avec succès";
-                $validation = true;
-            } else {
-                $response['code_statut'] = "1";
-                $response['desc_statut'] = "Mot de passe réinitialisé mais échec de l'envoi de l'email";
-                $validation = true;
-            }
-            
-        } else {
-            $response['code_statut'] = "0";
-            $response['desc_statut'] = "Échec lors de la mise à jour de l'utilisateur.";
-        }
-        
-        echo json_encode($response);
-        return $validation;
-    } catch (Exception $exc) {
-        $response['code_statut'] = "0";
-        $response['desc_statut'] = "Échec lors de la mise à jour de l'utilisateur. Veuillez contacter votre administrateur";
-        echo json_encode($response);
-        error_log($exc->getMessage());
-        return $validation;
     }
+
+    public function deleteProductImage($LG_PROID, $OUtilisateur) {
+        
+    }
+
+    public function dowloadDocuments($Documents, $LG_SOCID, $OUtilisateur) {
+        
+    }
+
+    public function getAllUtilisateurs() {
+        
+    }
+
+    public function getClientDemandes($statut) {
+        
+    }
+
+    public function uploadProductPicture($PICTURES, $SUBSTITUTION_PRODUCTS, $LG_PROID, $OUtilisateur) {
+        
+    }
+
 }
-}
+
