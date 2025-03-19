@@ -207,6 +207,7 @@ interface ConfigurationInterface
     public function updateDemande($value, $LG_SOCID);
 
     public function changeDocumentStatut($LG_DOCID, $OUtilisateur);
+    public function resetPasswordUtilisateur($STR_UTIMAIL, $OUtilisateur = null);
 }
 
 class ConfigurationManager implements ConfigurationInterface
@@ -427,12 +428,11 @@ class ConfigurationManager implements ConfigurationInterface
     }
 
     //recherche d'un utilisateur
-    public function getUtilisateur($LG_UTIID)
-    {
+    public function getUtilisateur($LG_UTIID) {
         $validation = null;
         Parameters::buildErrorMessage("Utilisateur inexistant");
         try {
-            $params_condition = array("lg_utiid" => $LG_UTIID, "str_utitoken" => $LG_UTIID);
+            $params_condition = array("lg_utiid" => $LG_UTIID, "str_utitoken" => $LG_UTIID, "str_utimail" => $LG_UTIID);
             $validation = $this->OUtilisateur = Find($this->Utilisateur, $params_condition, $this->dbconnnexion, "OR");
             if ($this->OUtilisateur == null) {
                 return $validation;
@@ -2405,48 +2405,51 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         return $failedTab;
     }
 
-    public function sendEmail($SUBJECT, $BODY, $TO, $FROM)
-    {
+    public function sendEmail($SUBJECT, $BODY, $TO, $FROM) {
         $validation = false;
         Parameters::buildErrorMessage("Erreur lors de l'envoi de l'email");
 
         $mail = new PHPMailer(true);
 
         try {
-            //Server settings
-//            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+//Server settings
+            $mail->SMTPDebug = SMTP::DEBUG_SERVER;
 
             $mail->isSMTP();
             $mail->Host = 'smtp.gmail.com';
             $mail->SMTPAuth = true;
-            $mail->Username = Parameters::$SMTP_USERNAME;
-            $mail->Password = Parameters::$SMTP_PASSWORD;
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Username = "davysgbala01@gmail.com";
+            $mail->Password = "jyuemshgdfpghwjj";
+            $mail->SMTPSecure = "PHPMailer::ENCRYPTION_STARTTLS";
             $mail->Port = 587;
+            $mail->SMTPOptions = array(
+            'ssl' => array(
+                'verify_peer'      => false,
+                'verify_peer_name' => false,
+                'allow_self_signed'=> true
+            )
+        );
 
-            //Recipients
+//Recipients
             $mail->setFrom($FROM);
             $mail->addAddress($TO);
 
             $htmlTemplate = file_get_contents(__DIR__ . '/../SN-Proveci-email-template.html');
             $htmlContent = str_replace('{MSG}', $BODY, $htmlTemplate);
 
-
-            //Content
+//Content
             $mail->isHTML(true);
             $mail->Subject = $SUBJECT;
 //            $mail->Body = $BODY;
             $mail->Body = $htmlContent;
             $mail->CharSet = 'UTF-8';
 
-
             if ($mail->send()) {
                 Parameters::buildSuccessMessage("Email envoyé avec succès");
                 $validation = true;
             }
-
         } catch (Exception $e) {
-            var_dump($mail->ErrorInfo);
+            var_dump($e);
         }
 
         return $validation;
@@ -3009,6 +3012,75 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
 
         return $validation;
     }
+
+    public function resetPasswordUtilisateur($STR_UTIMAIL, $OUtilisateur = null) {
+    $validation = false;
+    $response = array();
+    try {
+        // si la connexion à la base de données est valide
+        /* if (!$this->dbconnnexion) {
+            $response['code_statut'] = "0";
+            $response['desc_statut'] = "Erreur de connexion à la base de données";
+            echo json_encode($response);
+            return $validation;
+        }*/
+        
+        $this->OUtilisateur = $this->getUtilisateur($STR_UTIMAIL);
+
+        if ($this->OUtilisateur == null) {
+            $response['code_statut'] = "0";
+            $response['desc_statut'] = "Echec de reinitialisation du mot de passe. Adresse incorrecte";
+            echo json_encode($response);
+            return $validation;
+        }
+
+        $STR_UTIPASSWORD = generateRandomString(5);
+        $hashedPassword = sha1($STR_UTIPASSWORD);
+
+        $params_condition = array("lg_utiid" => $this->OUtilisateur[0]['lg_utiid']);
+        $params_to_update = array("str_utipassword" => $hashedPassword, "lg_utiupdatedid" => $this->OUtilisateur[0]['lg_utiid'], "dt_utiupdated" => get_now());
+
+        if (Merge($this->Utilisateur, $params_to_update, $params_condition, $this->dbconnnexion)) {
+            $SUBJECT = "Réinitialisation de votre de passe SN Proveci";
+            
+            $BODY = "Bonjour cher client " . $this->OUtilisateur[0]['str_utifirstlastname'] . ",<br><br>";
+            $BODY .= "Vous trouverez ci-dessous, vos nouveaux identifiants de connexion :<br>";
+            $BODY .= "Login : " . $this->OUtilisateur[0]['str_utilogin'] . "<br>";
+            $BODY .= "Mot de passe : " . $STR_UTIPASSWORD . "<br><br>";
+            
+            $htmlTemplate = file_get_contents(__DIR__ . '/../SN-Proveci-email-template.html');
+            $htmlContent = str_replace('{MSG}', $BODY, $htmlTemplate);
+            
+            $FROM = "habibrolandt@gmail.com";
+            $TO = $this->OUtilisateur[0]['str_utimail'];
+            
+            $emailrecu = $this->sendEmail($SUBJECT, $htmlContent, $TO, $FROM);
+            if ($emailrecu) {
+                $response['code_statut'] = "1";
+                $response['desc_statut'] = "Mot de passe réinitialisé avec succès";
+                $validation = true;
+            } else {
+                $response['code_statut'] = "1";
+                $response['desc_statut'] = "Mot de passe réinitialisé mais échec de l'envoi de l'email";
+                $validation = true;
+            }
+            
+        } else {
+            $response['code_statut'] = "0";
+            $response['desc_statut'] = "Échec lors de la mise à jour de l'utilisateur.";
+        }
+        
+        echo json_encode($response);
+        return $validation;
+    } catch (Exception $exc) {
+        $response['code_statut'] = "0";
+        $response['desc_statut'] = "Échec lors de la mise à jour de l'utilisateur. Veuillez contacter votre administrateur";
+        echo json_encode($response);
+        error_log($exc->getMessage());
+        return $validation;
+    }
+}
+
 
     public function createProduitSubstitution($LG_PROPARENTID, $LG_PROKIDID, $OUtilisateur) {
         
