@@ -64,7 +64,7 @@ if ($mode == "doConnexion") {
         $arrayJson["STR_UTIPIC"] = $value[0]['str_utipic'] ? Parameters::$rootFolderRelative . "avatars/" .  $value[0]["lg_utiid"] . "/" . $value[0]['str_utipic'] : null;
         $arrayJson["STR_UTITOKEN"] = $value[0]['str_utitoken'];
         $arrayJson["LG_PROID"] = $value[0]['lg_proid'];
-        $arrayJson["STR_PROTYPE"] = $value[0]['str_protype'] ?: null;
+        //$arrayJson["STR_PROTYPE"] = $value[0]['str_protype'] ?: null;
         $arrayJson["STR_PRODESCRIPTION"] = $value[0]['str_prodescription'] ?: null;
         $arrayJson["STR_SOCNAME"] = $value[0]['str_socname'];
         $arrayJson["STR_SOCDESCRIPTION"] = $value[0]['str_socdescription'];
