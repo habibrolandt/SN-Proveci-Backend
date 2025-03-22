@@ -247,8 +247,7 @@ class StockManager implements StockInterface
         return $arraySql;
     }
 
-    public function showAllOrOneProduct($FILTERS_OPTIONS, $LIMIT, $PAGE)
-    {
+    public function showAllOrOneProduct($FILTERS_OPTIONS, $LIMIT, $PAGE) {
         $arraySql = array();
         $WHERE = [];
         $select = "*";
@@ -265,40 +264,56 @@ class StockManager implements StockInterface
                             }
                             $WHERE[] = "(" . implode(" OR ", $conditions) . ")";
                         } else {
-                            // Sinon, gérer comme un seul LIKE
                             $WHERE[] = "t." . $key . " LIKE ?";
                         }
                     } else if ($key == "search") {
                         $WHERE[] = "(t.str_prodescription LIKE ? OR t.str_proname LIKE ? OR t.str_progamme LIKE ? OR t.str_procateg LIKE ? OR t.str_proespece LIKE ? )";
-
+                    } else if ($key == "str_progamme") { 
+                        if (is_array($value)) {
+                            $conditions = [];
+                            foreach ($value as $val) {
+                                $conditions[] = "t." . $key . " LIKE ?";
+                            }
+                            $WHERE[] = "(" . implode(" OR ", $conditions) . ")";
+                        } else {
+                            $WHERE[] = "t." . $key . " LIKE ?";
+                        }
                     } else {
                         $WHERE[] = "t." . $key . " IN (" . implode(',', array_fill(0, count($value), '?')) . ")";
                     }
                 }
+            }
 
 
-                $WHERE[] = "t.str_prostatut = ?";
-                $query .= implode(" AND ", $WHERE);
-                $query .= " ORDER BY t.str_prodescription";
-                $params = [];
 
-                foreach ($FILTERS_OPTIONS as $key => $value) {
-                    if ($key == "str_proespece") {
-                        foreach ($value as $v) {
-                            $params[] = "%" . $v . "%";
-                        }
-                    } else if ($key == "search") {
-                        for ($i = 0; $i < 5; $i++) {
-                            $params[] = "%" . $value . "%";
-                        }
-                    } else {
-                        $params = array_merge($params, $value);
+            $WHERE[] = "t.str_prostatut = ?";
+            $query .= implode(" AND ", $WHERE);
+            $query .= " ORDER BY t.str_prodescription";
+            $params = [];
+
+            foreach ($FILTERS_OPTIONS as $key => $value) {
+                if ($key == "str_proespece") {
+                    foreach ($value as $v) {
+                        $params[] = "%" . $v . "%";
                     }
+                } else if ($key == "search") {
+                    for ($i = 0; $i < 5; $i++) {
+                        $params[] = "%" . $value . "%";
+                    }
+                } else if ($key == "str_progamme") { //  filtre fournisseur
+                    foreach ($value as $v) {
+                        $params[] = "%" . $v . "%";
+                    }
+                } else {
+                    $params = array_merge($params, $value);
                 }
+            }
 
-            } else {
+
+            if (empty($FILTERS_OPTIONS)) {
                 $query = "SELECT $select FROM produit t WHERE t.str_prostatut = ? ORDER BY t.str_prodescription";
             }
+
 
 
             $query .= " LIMIT $LIMIT OFFSET " . ($PAGE - 1) * $LIMIT;
@@ -307,7 +322,7 @@ class StockManager implements StockInterface
             $res->execute($params);
             $arraySql = $res->fetchAll(PDO::FETCH_ASSOC);
 
-            if(count($arraySql) == 0){
+            if (count($arraySql) == 0) {
                 Parameters::buildSuccessMessage("Aucun produit trouvé");
             }
 
@@ -318,13 +333,21 @@ class StockManager implements StockInterface
             $res = $this->dbconnexion->prepare($queryCount);
             $res->execute($params);
             $count = $res->fetchAll(PDO::FETCH_ASSOC);
-
+            
+            // Correction pour éviter l'erreur "Undefined variable: count"
+            if (!isset($count) || !is_array($count) || count($count) == 0) {
+                $count = [["count" => 0]];
+            }
         } catch (Exception $e) {
             var_dump($e->getMessage());
             Parameters::buildErrorMessage("Impossible d'obtenir les produits");
+            // Initialiser $count pour éviter l'erreur
+            $count = [["count" => 0]];
         }
         return ["products" => $arraySql, "total" => $count[0]["count"] == null ? 0 : $count[0]["count"]];
     }
+
+
 
     public function getProduct($search_value)
     {

@@ -1910,8 +1910,8 @@ class CommandeManager implements CommandeInterface
             INNER JOIN commande c ON lc.lg_commid = c.lg_commid 
             INNER JOIN liste lst ON l.lg_lstid = lst.lg_lstid
             " . ($LG_AGEID != null ? "WHERE c.lg_ageid = :LG_AGEID" : "") . "
-            GROUP BY l.lg_livid
-            ";
+            GROUP BY l.lg_livid ORDER BY l.dt_livbegin ASC ";
+            
 
             if ($this->dbconnexion) {
                 if ($LG_AGEID != null) {

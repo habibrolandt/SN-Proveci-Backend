@@ -27,7 +27,8 @@ $CommandeManager = new CommandeManager();
 $StockManager = new StockManager();
 //$OneSignal = new OneSignal();
 
-$mode = $_REQUEST['mode'];
+$mode = isset($_REQUEST['mode']) ? $_REQUEST['mode'] : null; // Définit $mode avec une valeur par défaut (null)
+
 
 if (isset($_REQUEST['start'])) {
     $start = $_REQUEST['start'];
@@ -461,12 +462,14 @@ if ($mode == "listCommande") {
         $arrayJson["total"] = $result['total'];
         $arrayJson["limit"] = (int)$LIMIT;
         $arrayJson["page"] = (int)$PAGE;
-    } else if ($mode = "getClientCalendar") {
-        $arrayJsonChildren = $CommandeManager->getClientCalendar($LG_AGEID);
-        $tabsData = [];
-        $listsData = [];
+    }else if ($mode == "getClientCalendar") { // Correction ici : utilisation de "==" au lieu de "="
+    $arrayJsonChildren = $CommandeManager->getClientCalendar($LG_AGEID); // On suppose que $LG_AGEID est bien défini
+    $tabsData = [];
+    $listsData = [];
 
-        foreach ($arrayJsonChildren as $row) {
+    foreach ($arrayJsonChildren as $row) {
+        // Vérification de l'existence des indices avant leur utilisation
+        if (isset($row['str_lstvalue'])) {
             $tabId = 'product-tab-' . strtolower(str_replace(' ', '-', $row['str_lstvalue']));
 
             if (!isset($tabsData[$tabId])) {
@@ -480,26 +483,29 @@ if ($mode == "listCommande") {
                 $listsData[$tabId] = [];
             }
 
-            $listsData[$tabId][] = [
-                'id' => $row['lg_livid'],
-                'date' => date('d/m H:i', strtotime($row['dt_livbegin'])),
-                'deliveryDate' => date('d/m', strtotime($row['dt_livend'])),
-                'areas' => $row['str_lstdescription'], // Zone géographique
-            ];
+            // Vérification de l'existence des autres indices utilisés
+            if (isset($row['lg_livid'], $row['dt_livbegin'], $row['dt_livend'], $row['str_lstdescription'])) {
+                $listsData[$tabId][] = [
+                    'id' => $row['lg_livid'],
+                    'date' => date('d/m H:i', strtotime($row['dt_livbegin'])),
+                    'deliveryDate' => date('d/m', strtotime($row['dt_livend'])),
+                    'areas' => $row['str_lstdescription'], // Zone géographique
+                ];
+            }
         }
-
-        // Conversion en tableau pour tabsData
-        $tabsData = array_values($tabsData);
-
-        $arrayJson["data"] = ["tabsData" => $tabsData, "listsData" => $listsData];
-//        $arrayJson["data"] = [];
-
     }
 
-    $arrayJson["code_statut"] = Parameters::$Message;
-    $arrayJson["desc_statut"] = Parameters::$Detailmessage;
+    // Conversion en tableau indexé pour tabsData
+    $tabsData = array_values($tabsData);
+
+    // Ajout des données au tableau JSON
+    $arrayJson["data"] = ["tabsData" => $tabsData, "listsData" => $listsData];
+
+    // Initialisation de $arrayJson["code_statut"] et $arrayJson["desc_statut"]
+    $arrayJson["code_statut"] = Parameters::$Message ?? "Code statut non défini"; // Valeur par défaut
+    $arrayJson["desc_statut"] = Parameters::$Detailmessage ?? "Message non défini";
 }
 
+// Conversion en JSON et affichage
 echo json_encode($arrayJson);
-
-
+}

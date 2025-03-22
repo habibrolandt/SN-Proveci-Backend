@@ -8,9 +8,12 @@
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/FileManager.php</file>
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/ConfigurationManager.php</file>
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/services/scripts/php/lib.php</file>
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/StockManager.php</file>
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/ConfigurationManager.php</file>
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/Authentification.php</file>
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/CommandeManager.php</file>
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/Parameters.php</file>
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/StockManager.php</file>
         </group>
     </open-files>
 </project-private>
