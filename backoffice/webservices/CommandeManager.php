@@ -62,9 +62,12 @@ if (isset($_REQUEST['LG_COMMID']) && $_REQUEST['LG_COMMID'] != "") {
     $LG_COMMID = $_REQUEST['LG_COMMID'];
 }
 
-if (isset($_REQUEST['LG_AGEID'])) {
-    $LG_AGEID = $_REQUEST['LG_AGEID'];
+if (isset($_REQUEST['LG_AGEID']) && !empty($_REQUEST['LG_AGEID'])) {
+    $LG_AGEID = htmlspecialchars(trim($_REQUEST['LG_AGEID']));
+} else {
+    $LG_AGEID = null; // Définit une valeur par défaut en cas d'absence de la clé
 }
+
 
 if (isset($_REQUEST['STR_UTITOKEN'])) {
     $STR_UTITOKEN = $_REQUEST['STR_UTITOKEN'];

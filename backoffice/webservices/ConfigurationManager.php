@@ -773,7 +773,7 @@ if ($mode == "listTypetransaction") {
         foreach ($result as $value) {
             $arrayJson_chidren['id'] = $value['lg_proid'] ?? $value["lg_docid"];
             $arrayJson_chidren['src'] = Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . ($value['str_propic'] ?? $value["str_docpath"]);
-            if ($value['str_propic']) {
+            if (isset($value['str_propic']) && $value['str_propic']) {
                 $arrayJson_chidren['isMain'] = true;
             } else {
                 $arrayJson_chidren['isMain'] = false;

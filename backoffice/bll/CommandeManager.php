@@ -1898,41 +1898,48 @@ class CommandeManager implements CommandeInterface
     }
 
     public function getClientCalendar($LG_AGEID = null)
-    {
-        $arraySql = array();
-        $params = array();
-        Parameters::buildSuccessMessage("Calendrier de livraison récupéré avec succès");
-        try {
-            $query = "
-                    SELECT lst.str_lstvalue, lst.str_lstdescription, l.dt_livbegin, l.dt_livend, l.lg_livid
+{
+    $arraySql = array();
+    $params = array();
+    Parameters::buildSuccessMessage("Calendrier de livraison récupéré avec succès");
+
+    try {
+        $query = "
+            SELECT lst.str_lstvalue, lst.str_lstdescription, l.dt_livbegin, l.dt_livend, l.lg_livid
             FROM livraison l 
             INNER JOIN liv_commande lc ON l.lg_livid = lc.lg_livid 
             INNER JOIN commande c ON lc.lg_commid = c.lg_commid 
             INNER JOIN liste lst ON l.lg_lstid = lst.lg_lstid
-            " . ($LG_AGEID != null ? "WHERE c.lg_ageid = :LG_AGEID" : "") . "
-            GROUP BY l.lg_livid ORDER BY l.dt_livbegin ASC ";
-            
+            " . ($LG_AGEID !== null ? "WHERE c.lg_ageid = :LG_AGEID" : "") . "
+            GROUP BY l.lg_livid 
+            ORDER BY l.dt_livbegin ASC 
+        ";
 
-            if ($this->dbconnexion) {
-                if ($LG_AGEID != null) {
-                    $params = array("LG_AGEID" => $LG_AGEID);
-                }
-                $stmt = $this->dbconnexion->prepare($query);
-                $stmt->execute($params);
-                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                if (!is_array($results)) {
-                    Parameters::buildErrorMessage("Aucun calendrier de livraison trouvé");
-                    return [];
-                }
-                $arraySql = $results;
-                $stmt->closeCursor();
+        if ($this->dbconnexion) {
+            if ($LG_AGEID !== null) {
+                $params = array("LG_AGEID" => $LG_AGEID);
             }
-        } catch (Exception $exc) {
-            error_log($exc->getTraceAsString());
-            Parameters::buildErrorMessage("Impossible de récupérer le planning de livraison, veuillez contacter votre administrateur.");
+
+            $stmt = $this->dbconnexion->prepare($query);
+            $stmt->execute($params);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (!is_array($results) || empty($results)) {
+                Parameters::buildErrorMessage("Aucun calendrier de livraison trouvé");
+                return [];
+            }
+
+            $arraySql = $results;
+            $stmt->closeCursor();
         }
-        return $arraySql;
+    } catch (Exception $exc) {
+        error_log($exc->getMessage());
+        Parameters::buildErrorMessage("Impossible de récupérer le planning de livraison, veuillez contacter votre administrateur.");
     }
+
+    return $arraySql;
+}
+
 
     public function showAllOrOneOrderOrInvoice($FILTER_OPTIONS, $LIMIT, $PAGE, $TABLE): array
     {
