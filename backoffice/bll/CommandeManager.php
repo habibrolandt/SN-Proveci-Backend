@@ -2071,47 +2071,74 @@ class CommandeManager implements CommandeInterface
 
 
     public function showAllOrdersByClientExternal($LG_CLIID)
-    {
-        $array = array();
-        $ConfigurationManager = new ConfigurationManager();
-        try {
-            $token = $ConfigurationManager->generateToken();
+{
+    $array = array();  
+    $ConfigurationManager = new ConfigurationManager(); // Gestionnaire de configuration
 
-            $url = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/orders";
+    try {
+        
+        $token = $ConfigurationManager->generateToken();
 
-            $headers = array(
-                'Accept: application/json',
-                'Content-Type: application/x-www-form-urlencoded',
-                "api_key: " . Parameters::$apikey,
-                "token: " . $token
-            );
+        
+        $urlOrders = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/orders";
+        $headers = array(
+            'Accept: application/json',
+            'Content-Type: application/x-www-form-urlencoded',
+            "api_key: " . Parameters::$apikey,
+            "token: " . $token
+        );
 
-            // Initialisation de cURL
-            $ch = curl_init($url);
+        $ch = curl_init($urlOrders);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-            // Configuration de cURL
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $responseOrders = curl_exec($ch); 
+        curl_close($ch);
 
-            $response = curl_exec($ch);
-            curl_close($ch);
-
-            $obj = json_decode($response);
-            //var_dump($obj);
-            // Vérifier si la conversion a réussi
-            if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
-                die('Erreur lors du décodage JSON');
-            }
-
-            $array = $obj;
-            Parameters::buildSuccessMessage("Commandes recuperé avec succès");
-        } catch (Exception $exception) {
-            error_log($exception->getMessage());
-            Parameters::buildErrorMessage("Erreur lors de la récupération des commandes");
+        $ordersObj = json_decode($responseOrders); 
+        if ($ordersObj === null && json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Erreur lors du décodage JSON des commandes');
         }
 
-        return $array;
+        // Récupération des factures depuis la table stat_facture
+        $query = "SELECT PcvMtTTC, PcvMtTotal, PcvEtatFNuf 
+                  FROM stat_facture 
+                  WHERE LG_CLIID = :LG_CLIID"; // Récupérer les factures liées au client
+        $stmt = $this->dbconnexion->prepare($query); 
+        $stmt->bindParam(':LG_CLIID', $LG_CLIID); 
+        $stmt->execute(); 
+        $invoices = $stmt->fetchAll(PDO::FETCH_ASSOC); // Récupération des résultats
+
+        // Calculs factures
+        $totalInvoices = 0;
+        $totalPaid = 0;
+        foreach ($invoices as $invoice) {
+            $totalInvoices += (int)$invoice['PcvMtTotal']; 
+            if ($invoice['PcvEtatFNuf'] === "Payé") { 
+                $totalPaid += (int)$invoice['PcvMtTTC']; 
+            }
+        }
+        $remainingInvoices = $totalInvoices - $totalPaid; // Calcul du montant restant
+
+        // Construction de la réponse API
+        $array["data"] = array(
+            "sumAmountOrders" => $ordersObj->data->sumAmountOrders,
+            "invoices" => array(
+                "totalAmount" => $totalInvoices,
+                "amountPaid" => $totalPaid,
+                "remaining" => $remainingInvoices,
+                "status" => $remainingInvoices > 0 ? "Partiellement payé" : "Payé"
+            )
+        );
+
+        Parameters::buildSuccessMessage("Commandes et factures récupérées avec succès");
+    } catch (Exception $exception) {
+        error_log($exception->getMessage());
+        Parameters::buildErrorMessage("Erreur lors de la récupération des commandes et des factures");
     }
 
+    return $array; 
+}
 
+  
 }

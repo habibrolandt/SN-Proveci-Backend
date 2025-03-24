@@ -4,23 +4,8 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/CommandeManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/SN-Proveci-email-template.html</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/ConfigurationManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/StockManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/TicketManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/Authentification.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/OneSignal.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/Parameters.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/AdherentManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/PaymentManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/PaymentManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/FileManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/AdherentManager.php</file>
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/ConfigurationManager.php</file>
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/CommandeManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/StatistiqueManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/StockManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/TransactionManager.php</file>
         </group>
     </open-files>
 </project-private>
