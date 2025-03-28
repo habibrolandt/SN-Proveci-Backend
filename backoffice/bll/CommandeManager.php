@@ -101,6 +101,10 @@ interface CommandeInterface
     public function showAllOrOneInvoiceProducts($LG_CLIID, $LG_COMMID, $token = null);
 
     public function showAllOrders($params_conditions);
+    
+    public function showAllOrOneLivraison($search_value, $LG_LSTID);
+    public function showAllOrOneZonelivraisonActive();
+    
 }
 
 class CommandeManager implements CommandeInterface
@@ -1775,47 +1779,66 @@ class CommandeManager implements CommandeInterface
 
 
     public function getCalendarFrontOfiice()
-    {
-        $arraySql = array();
-        $array_place = array();
-        $array_delivery = array();
-        try {
-            $deliveryPlace = $this->getDeliveryPlace([], 99999, 1);
-            $calendar = $this->showAllOrOneDeliveryCalendar([], 99999, 1);
+{
+    $arraySql = [];
+    $array_place = [];
+    $array_delivery = [];
 
-            foreach ($deliveryPlace as $place) {
-                foreach ($calendar as $cal) {
-                    if ($place['lg_lstid'] == $cal['zone_id']) {
-                        $cal['zone'] = $place['str_lstdescription'];
-                        $array_delivery[$place['str_lstdescription']] = [
-                            "lg_callivid" => $cal["lg_callivid"],
-                            "date" => $cal["dt_callivbegin"],
-                            "deliveryDate" => $cal["dt_callivend"],
-                        ];
-                    }
-                }
+    try {
+        // Récupération des données
+        $deliveryPlace = $this->getDeliveryPlace([], 99999, 1);
+        $calendar = $this->showAllOrOneDeliveryCalendar([], 99999, 1);
+
+        // Vérification que $deliveryPlace et $calendar sont des tableaux
+        if (!is_array($deliveryPlace) || !is_array($calendar)) {
+            throw new Exception("Les données reçues ne sont pas valides.");
+        }
+
+        // Traitement des données pour $array_delivery
+        foreach ($deliveryPlace as $place) {
+            if (!isset($place['lg_lstid'], $place['str_lstdescription'])) {
+                continue; // Ignorer si les clés nécessaires sont absentes
             }
 
+            foreach ($calendar as $cal) {
+                if (!isset($cal['zone_id'], $cal['lg_callivid'], $cal['dt_callivbegin'], $cal['dt_callivend'])) {
+                    continue; // Ignorer si les clés nécessaires sont absentes
+                }
 
-            foreach ($deliveryPlace as $place) {
+                if ($place['lg_lstid'] == $cal['zone_id']) {
+                    $cal['zone'] = $place['str_lstdescription'];
+                    $array_delivery[$place['str_lstdescription']] = [
+                        "lg_callivid" => $cal["lg_callivid"],
+                        "date" => $cal["dt_callivbegin"],
+                        "deliveryDate" => $cal["dt_callivend"],
+                    ];
+                }
+            }
+        }
+
+        // Traitement des données pour $array_place
+        foreach ($deliveryPlace as $place) {
+            if (isset($place['lg_lstid'], $place['str_lstdescription'])) {
                 $array_place[] = [
                     "lg_lstid" => $place['lg_lstid'],
                     "str_lstdescription" => $place['str_lstdescription'],
                 ];
             }
-
-            $arraySql[] = $array_delivery;
-            $arraySql[] = $array_place;
-//            foreach ($calendar as $cal) {
-//                $cal['zone'] = $deliveryPlace[array_search($cal['zone_id'], array_column($deliveryPlace, 'lg_lstid'))]['str_lstdescription'];
-//                $arraySql[] = $cal;
-//            }
-        } catch (Exception $exc) {
-            var_dump($exc->getTraceAsString());
-            Parameters::buildErrorMessage("Echec de la recuperation du calendrier de livraison");
         }
-        return $arraySql;
+
+        // Constitution du résultat final
+        $arraySql[] = $array_delivery;
+        $arraySql[] = $array_place;
+
+    } catch (Exception $exc) {
+        // Gestion des exceptions
+        var_dump($exc->getMessage());
+        Parameters::buildErrorMessage("Échec de la récupération du calendrier de livraison");
     }
+
+    return $arraySql;
+}
+
 
     public function listClientCommande($token = null, $LG_SOCID, $LG_AGEID)
     {
@@ -2070,16 +2093,14 @@ class CommandeManager implements CommandeInterface
     }
 
 
-    public function showAllOrdersByClientExternal($LG_CLIID)
+    public function showAllOrdersByClientExternal($LG_CLIID) 
 {
     $array = array();  
     $ConfigurationManager = new ConfigurationManager(); // Gestionnaire de configuration
 
     try {
-        
         $token = $ConfigurationManager->generateToken();
 
-        
         $urlOrders = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/orders";
         $headers = array(
             'Accept: application/json',
@@ -2100,45 +2121,70 @@ class CommandeManager implements CommandeInterface
             throw new Exception('Erreur lors du décodage JSON des commandes');
         }
 
-        // Récupération des factures depuis la table stat_facture
-        $query = "SELECT PcvMtTTC, PcvMtTotal, PcvEtatFNuf 
-                  FROM stat_facture 
-                  WHERE LG_CLIID = :LG_CLIID"; // Récupérer les factures liées au client
-        $stmt = $this->dbconnexion->prepare($query); 
-        $stmt->bindParam(':LG_CLIID', $LG_CLIID); 
-        $stmt->execute(); 
-        $invoices = $stmt->fetchAll(PDO::FETCH_ASSOC); // Récupération des résultats
-
-        // Calculs factures
-        $totalInvoices = 0;
-        $totalPaid = 0;
-        foreach ($invoices as $invoice) {
-            $totalInvoices += (int)$invoice['PcvMtTotal']; 
-            if ($invoice['PcvEtatFNuf'] === "Payé") { 
-                $totalPaid += (int)$invoice['PcvMtTTC']; 
-            }
-        }
-        $remainingInvoices = $totalInvoices - $totalPaid; // Calcul du montant restant
-
         // Construction de la réponse API
         $array["data"] = array(
-            "sumAmountOrders" => $ordersObj->data->sumAmountOrders,
-            "invoices" => array(
-                "totalAmount" => $totalInvoices,
-                "amountPaid" => $totalPaid,
-                "remaining" => $remainingInvoices,
-                "status" => $remainingInvoices > 0 ? "Partiellement payé" : "Payé"
-            )
+            "sumAmountOrders" => $ordersObj->data->sumAmountOrders
         );
 
-        Parameters::buildSuccessMessage("Commandes et factures récupérées avec succès");
-    } catch (Exception $exception) {
-        error_log($exception->getMessage());
-        Parameters::buildErrorMessage("Erreur lors de la récupération des commandes et des factures");
+        Parameters::buildSuccessMessage("Commandes récupérées avec succès");
+    } catch (Exception $e) {
+        Parameters::buildErrorMessage($e->getMessage());
     }
 
-    return $array; 
+    return $array;
 }
 
-  
+    #[\Override]
+    public function showAllOrOneLivraison($search_value, $LG_LSTID) {
+    $arraySql = array(); // Initialisation du tableau pour stocker les résultats
+    try {
+        // Requête SQL corrigée
+        $query = "SELECT l.*, t.str_lstdescription 
+          FROM ".$this->Livraison." l 
+          JOIN ".$this->Liste." t 
+          ON l.lg_lstid = t.lg_lstid 
+          WHERE l.str_livname LIKE :search_value 
+            AND l.lg_lstid LIKE :LG_LSTID 
+            AND l.str_livstatut != :STR_STATUT 
+          ORDER BY l.dt_livbegin";
+
+        $res = $this->dbconnexion->prepare($query);
+
+        // Exécution de la requête
+        $res->execute(array(
+            'search_value' => "%" . $search_value . "%", 
+            "LG_LSTID" => $LG_LSTID, 
+            "STR_STATUT" => Parameters::$statut_delete
+        ));
+
+        // Boucle pour récupérer les résultats
+        while ($rowObj = $res->fetch()) {
+            $arraySql[] = $rowObj;
+        }
+
+        $res->closeCursor(); // Fermeture du curseur
+    } catch (Exception $exc) {
+        error_log($exc->getMessage()); // Log des exceptions
+    }
+    return $arraySql; // Retourne les résultats
+}
+
+
+    public function showAllOrOneZonelivraisonActive() {
+        $arraySql = array();
+        try {
+            $query = "SELECT * FROM ".$this->Liste." t WHERE t.lg_tylid LIKE :LG_TYLID and t.str_lststatut = :STR_STATUT and t.lg_lstid in (SELECT l.lg_lstid from ".$this->Livraison." l WHERE l.str_livstatut != :STR_STATUT_DELETE) order by t.str_lstdescription";
+            $res = $this->dbconnexion->prepare($query);
+            //exécution de la requête
+            $res->execute(array("LG_TYLID" => Parameters::$typelisteValue[0], "STR_STATUT" => Parameters::$statut_enable, "STR_STATUT_DELETE" => Parameters::$statut_delete));
+            while ($rowObj = $res->fetch()) {
+                $arraySql[] = $rowObj;
+            }
+            $res->closeCursor();
+        } catch (Exception $exc) {
+            $exc->getTraceAsString();
+        }
+        return $arraySql;
+    }
+
 }

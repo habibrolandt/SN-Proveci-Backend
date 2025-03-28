@@ -124,7 +124,47 @@ if ($mode == "listCommande") {
         $OJson[] = $arrayJsonChildren;
     }
     $arrayJson["data"] = $OJson;
-} else if ($mode == "getClientPanier") {
+}else if ($mode == "getCalendar") {
+    $listZonelivraison = $CommandeManager->showAllOrOneZonelivraisonActive();
+    $tabsData = array();
+    $listsData = array();
+
+    foreach ($listZonelivraison as $value) {
+        // Ajout des données dans tabsData
+        $tabsData[] = array(
+            "id" => "product-tab-" . strtolower(str_replace(" ", "-", $value['str_lstvalue'])), // Génération d'un ID unique
+            "title" => $value['str_lstvalue'] // Titre de la région
+        );
+
+        // Initialisation de la liste pour cette région
+        $listLivraison = $CommandeManager->showAllOrOneLivraison("", $value['lg_lstid']);
+        $regionData = array();
+
+        foreach ($listLivraison as $v) {
+            $regionData[] = array(
+                "id" => $v['lg_livid'], // ID de livraison
+                "date" => "01/07 avant 12H00", // Exemple de date limite (à remplacer par votre logique métier)
+                "deliveryDate" => $v['dt_livbegin'], // Date de livraison prévue
+                "areas" => isset($v['str_lstdescription']) ? $v['str_lstdescription'] : "Zone inconnue" // Zone géographique
+            );
+        }
+
+        // Ajout des livraisons à listsData
+        $listsData["product-tab-" . strtolower(str_replace(" ", "-", $value['str_lstvalue']))] = $regionData;
+    }
+
+    // Construction du JSON final
+    $arrayJson = array(
+        "tabsData" => $tabsData, // Données des onglets
+        "listsData" => $listsData // Données des livraisons par région
+    );
+
+    echo json_encode($arrayJson); // Encodage en JSON
+}
+
+
+
+else if ($mode == "getClientPanier") {
     $value = $CommandeManager->getClientPanier($LG_AGEID);
     if ($value) {
         $arrayJson["data"] = $value;
@@ -152,13 +192,15 @@ if ($mode == "listCommande") {
     $arrayJson["total"] = $result['total'];
     $arrayJson["limit"] = (int)$LIMIT;
     $arrayJson["page"] = (int)$PAGE;
-} else if ($mode === "listOrdersByClient") {
+}  else if ($mode === "listOrdersByClient") {
     $orders = $CommandeManager->showAllOrdersByClientExternal($LG_CLIID)->pieces;
     $sumAmountOrders = 0;
     foreach ($orders as $order) {
         $sumAmountOrders += (int)$order->PcvMtTTC;
     }
     $arrayJson["data"]["sumAmountOrders"] = $sumAmountOrders;
+
+
 } else {
 
     if (isset($_REQUEST['STR_COMMNAME'])) {
