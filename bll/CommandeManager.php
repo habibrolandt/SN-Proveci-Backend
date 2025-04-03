@@ -380,49 +380,75 @@ class CommandeManager implements CommandeInterface
 
     }
 
-    public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur, $token)
-    {
-        //$ConfigurationManager = new ConfigurationManager();
-        $validation = "";
-        $LG_CPRID = "";
-        $StockManager = new StockManager();
-        try {
-            $this->OCommproduit = $this->getCommandeProduit($LG_COMMID, $LG_PROID);
+   public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur, $token)
+{
+    $validation = "";
+    $LG_CPRID = "";
+    $StockManager = new StockManager();
 
-            if ($this->OCommproduit == null) {
-                $ArtStk = (float)$StockManager->getProductRemote($LG_PROID, $token)->products[0]->ArtStk;
-                if ($INT_CPRQUANTITY > $ArtStk) {
-                    Parameters::buildErrorMessage("Echec d'ajout du produit a la commande. La quantité demandé dépasse le stock");
-                    return ["true_pro_qty" => $ArtStk];
-                }
-                $LG_CPRID = $this->createOrderProduitExternal($LG_COMMID, $LG_CLIID, $LG_PROID, $INT_CPRQUANTITY, $token);
+    try {
+        $this->OCommproduit = $this->getCommandeProduit($LG_COMMID, $LG_PROID);
+
+        if ($this->OCommproduit == null) {
+            $productRemote = $StockManager->getProductRemote($LG_PROID, $token);
+            var_dump($productRemote);
+die();
 
 
-                //echo "====".$LG_CPRID."++++";
-                if ($LG_CPRID == "") {
-                    Parameters::buildErrorMessage("Echec d'ajout du produit a la commande. Une erreur est survenu sur votre commande");
-                    return $validation;
-                }
-                $validation = $this->initCommandeProduit($LG_CPRID, $LG_COMMID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur);
+            // Vérification et conversion de `products`
+            $productsArray = isset($productRemote->products) ? (array) $productRemote->products : [];
+
+            if (!empty($productsArray) && isset($productsArray[0]) && is_object($productsArray[0])) {
+                $ArtStk = !empty($productsArray[0]->ArtStk) ? (float) $productsArray[0]->ArtStk : 0; 
             } else {
-                $LG_CPRID = $this->OCommproduit[0][0];
-                $LG_CPRID = $this->updateCommandeProduit($LG_CPRID, (int)$this->OCommproduit[0]["int_cprquantity"] + (int)$INT_CPRQUANTITY, $OUtilisateur, $token);
-                $validation = $LG_CPRID;
-
-                //TODO: A faire
-//                $PanierClient = $this->getExternalClientPanier($LG_AGEID, $LG_COMMID, $token);
-////                var_dump($PanierClient);
-//                $this->updateCommande($LG_COMMID, $PanierClient->pieces[0]->PcvMtHT, $PanierClient->pieces[0]->PcvMtTTC);
+                die("Erreur : produit introuvable dans la réponse API.");
             }
 
+            if ($INT_CPRQUANTITY > $ArtStk) {
+                 Parameters::buildErrorMessage("Échec d'ajout du produit à la commande. La quantité demandée dépasse le stock.");
+    return ["true_pro_qty" => $ArtStk];
 
-            $PanierClient = $this->getExternalClientPanier($LG_AGEID, $LG_COMMID, $token);
-            $this->updateCommande($LG_COMMID, $PanierClient->pieces[0]->PcvMtHT, $PanierClient->pieces[0]->PcvMtTTC);
-        } catch (Exception $exc) {
-            echo $exc->getTraceAsString();
+            }
+
+            $LG_CPRID = $this->createOrderProduitExternal($LG_COMMID, $LG_CLIID, $LG_PROID, $INT_CPRQUANTITY, $token);
+
+            if ($LG_CPRID == "") {
+                Parameters::buildErrorMessage("Échec d'ajout du produit à la commande. Une erreur est survenue.");
+                return $validation;
+            }
+
+            $validation = $this->initCommandeProduit($LG_CPRID, $LG_COMMID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur);
+        } else {
+            if (isset($this->OCommproduit[0]) && is_object($this->OCommproduit[0])) {
+                $LG_CPRID = $this->OCommproduit[0]->LG_CPRID;
+                $LG_CPRID = $this->updateCommandeProduit($LG_CPRID, (int) $this->OCommproduit[0]->int_cprquantity + (int) $INT_CPRQUANTITY, $OUtilisateur, $token);
+            } elseif (isset($this->OCommproduit[0]) && is_array($this->OCommproduit[0])) {
+                $LG_CPRID = $this->OCommproduit[0][0];
+                $LG_CPRID = $this->updateCommandeProduit($LG_CPRID, (int) $this->OCommproduit[0]["int_cprquantity"] + (int) $INT_CPRQUANTITY, $OUtilisateur, $token);
+            }
+
+            $validation = $LG_CPRID;
         }
-        return $validation;
+
+        // Mise à jour du panier client
+        $PanierClient = $this->getExternalClientPanier($LG_AGEID, $LG_COMMID, $token);
+
+        // Vérification avant mise à jour
+        if (isset($PanierClient->pieces[0]) && is_object($PanierClient->pieces[0])) {
+            $this->updateCommande($LG_COMMID, $PanierClient->pieces[0]->PcvMtHT, $PanierClient->pieces[0]->PcvMtTTC);
+        } else {
+            die("Erreur : données du panier client introuvables.");
+        }
+
+    } catch (Exception $exc) {
+        echo $exc->getTraceAsString();
     }
+
+    return $validation;
+}
+
+
+
 
     public function createOrderProduitExternal($LG_COMMID, $LG_CLIID, $LG_PROID, $INT_CPRQUANTITY, $token)
     {
@@ -466,10 +492,14 @@ class CommandeManager implements CommandeInterface
 
 // Fermeture de la session cURL
             curl_close($ch);
+            //var_dump($response);
+            //exit;
 
 //            echo $response;
             // Convertir le JSON en objet PHP
             $obj = json_decode($response);
+
+
 //            var_dump($obj);
             // Vérifier si la conversion a réussi
             if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
@@ -539,52 +569,86 @@ class CommandeManager implements CommandeInterface
     }
 
     public function updateCommandeProduit($LG_CPRID, $INT_CPRQUANTITY, $OUtilisateur, $token)
-    {
-        $validation = [];
-        $ArtStk = 0;
-        $OProduit = array();
-        $StockManager = new StockManager();
-        try {
-            $this->OCommproduit = $this->getCommandeProduitLight($LG_CPRID);//
-            if ($this->OCommproduit == null) {
-                Parameters::buildErrorMessage("Echec de mise à jour du produit. Référence inexistante sur la commande");
-                return false;
-            }
-            $OProduit = $StockManager->getProductRemote($this->OCommproduit[0]['lg_proid'], $token)->products;
+{
+    $validation = [];
+    $ArtStk = 0;
+    $OProduit = [];
+    $StockManager = new StockManager();
 
-            $ArtStk = $OProduit != null ? (float)$OProduit[0]->ArtStk : $ArtStk;
-            if ($INT_CPRQUANTITY > $ArtStk) {
-                Parameters::buildErrorMessage("Echec de mise à de la quantité du produit. La quantité voulue dépasse le stock");
-                return false;
-            }
+    try {
+        $this->OCommproduit = $this->getCommandeProduitLight($LG_CPRID);
 
-            if ($this->updateOrderProduitExternal($LG_CPRID, $this->OCommproduit[0]["lg_commid"], $this->OCommproduit[0]["lg_socextid"], $INT_CPRQUANTITY, $token) == "") {
-                Parameters::buildErrorMessage("Echec de mise à de la quantité du produit. Veuillez réessayer svp!");
-                return false;
-            }
+        if ($this->OCommproduit == null) {
+            Parameters::buildErrorMessage("Échec de mise à jour du produit. Référence inexistante sur la commande");
+            return false;
+        }
 
-            $params_condition = array("lg_cprid" => $this->OCommproduit[0][0]);
-            $params_to_update = array("int_cprquantity" => $INT_CPRQUANTITY, "dt_cprupdated" => get_now(), "lg_utiupdateid" => $OUtilisateur[0][0]);
+        // Récupération des informations produit
+        $OProduitRemote = $StockManager->getProductRemote($this->OCommproduit[0]['lg_proid'], $token);
 
-            if ($this->dbconnexion != null) {
-                if (Merge($this->Commproduit, $params_to_update, $params_condition, $this->dbconnexion)) {
-                    $validation["lg_cprid"] = $this->OCommproduit[0]["lg_cprid"];
-                    $PanierClient = $this->getExternalClientPanier($this->OCommproduit[0]["lg_ageid"], $this->OCommproduit[0]["lg_commid"], $token);
+        // Vérification de l'existence de la clé "products" et de son contenu
+        if (!isset($OProduitRemote->products) || !is_array($OProduitRemote->products) || empty($OProduitRemote->products)) {
+            Parameters::buildErrorMessage("Produit introuvable ou structure incorrecte.");
+            return false;
+        }
 
-                    $validation = array_merge($validation, ["PcvMtHT" => $PanierClient->pieces[0]->PcvMtHT, "PcvMtTTC" => $PanierClient->pieces[0]->PcvMtTTC]);
+        // Premier produit trouvé
+        $OProduit = $OProduitRemote->products[0];
+
+        // Vérification de ArtStk avant conversion
+        if (isset($OProduit->ArtStk) && $OProduit->ArtStk !== "") {
+            $ArtStk = (float) $OProduit->ArtStk;
+        } else {
+            $ArtStk = 0;
+        }
+
+        // Vérification du stock disponible
+        if ($INT_CPRQUANTITY > $ArtStk) {
+            Parameters::buildErrorMessage("Échec de mise à jour de la quantité. La quantité voulue dépasse le stock disponible.");
+            return false;
+        }
+
+        // Mise à jour externe
+        if ($this->updateOrderProduitExternal($LG_CPRID, $this->OCommproduit[0]["lg_commid"], $this->OCommproduit[0]["lg_socextid"], $INT_CPRQUANTITY, $token) == "") {
+            Parameters::buildErrorMessage("Échec de mise à jour de la quantité du produit. Veuillez réessayer !");
+            return false;
+        }
+
+        // Mise à jour en base de données
+        $params_condition = ["lg_cprid" => $this->OCommproduit[0]["lg_cprid"]];
+        $params_to_update = [
+            "int_cprquantity" => $INT_CPRQUANTITY,
+            "dt_cprupdated" => get_now(),
+            "lg_utiupdateid" => $OUtilisateur[0][0]
+        ];
+
+        if ($this->dbconnexion != null) {
+            if (Merge($this->Commproduit, $params_to_update, $params_condition, $this->dbconnexion)) {
+                $validation["lg_cprid"] = $this->OCommproduit[0]["lg_cprid"];
+
+                $PanierClient = $this->getExternalClientPanier($this->OCommproduit[0]["lg_ageid"], $this->OCommproduit[0]["lg_commid"], $token);
+                if (isset($PanierClient->pieces[0])) {
+                    $validation = array_merge($validation, [
+                        "PcvMtHT" => $PanierClient->pieces[0]->PcvMtHT ?? 0,
+                        "PcvMtTTC" => $PanierClient->pieces[0]->PcvMtTTC ?? 0
+                    ]);
 
                     $this->updateCommande($this->OCommproduit[0]["lg_commid"], $PanierClient->pieces[0]->PcvMtHT, $PanierClient->pieces[0]->PcvMtTTC);
-                    Parameters::buildSuccessMessage("Mise à jour avec succès");
-                } else {
-                    Parameters::buildErrorMessage("Echec de mise à jour du produit");
                 }
+
+                Parameters::buildSuccessMessage("Mise à jour réussie !");
+            } else {
+                Parameters::buildErrorMessage("Échec de mise à jour du produit.");
             }
-        } catch (Exception $exc) {
-            echo $exc->getTraceAsString();
-            Parameters::buildErrorMessage("Echec de mise à jour du produit. Veuillez contacter votre administrateur");
         }
-        return $validation;
+    } catch (Exception $exc) {
+        echo $exc->getTraceAsString();
+        Parameters::buildErrorMessage("Échec de mise à jour du produit. Veuillez contacter votre administrateur.");
     }
+
+    return $validation;
+}
+
 
     public function updateOrderProduitExternal($LG_CPRID, $LG_COMMID, $LG_CLIID, $INT_CPRQUANTITY, $token)
     {

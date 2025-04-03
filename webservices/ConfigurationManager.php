@@ -491,26 +491,34 @@ if ($mode == "listTypetransaction") {
         if ($value != null) {
             $arrayJson = $value[0];
         }
-    } else if ($mode == "getProducts") {
-        $StockManager = new StockManager();
-        $arrayJson["products_not_found"] = [];
-        foreach (json_decode($CMD_DATA) as $item) {
-            $product = $StockManager->getProduct($item->str_proname);
-            if ($product != null) {
-                foreach ($product as $value) {
-                    $arrayJson_chidren = array();
-                    $arrayJson_chidren['str_proname'] = $value['str_proname'];
-                    $arrayJson_chidren['str_prodescription'] = $value['str_prodescription'];
-                    $arrayJson_chidren['int_propricevente'] = $value['int_propricevente'];
-                    $arrayJson_chidren['int_cprquantity'] = (int) $item->int_cprquantity;
-                    $arrayJson_chidren['dbl_montant'] = (int) $value['int_propricevente'] * (int) $item->int_cprquantity;
-                    $arrayJson["products"][] = $arrayJson_chidren;
-                }
-            } else {
-                $arrayJson["products_not_found"][] = $item->str_proname;
-            }
+    }else if ($mode == "getProducts") {
+    $StockManager = new StockManager();
+    $arrayJson["products_not_found"] = [];
+
+    foreach (json_decode($CMD_DATA) as $item) {
+        // Vérification de l'existence de la propriété str_proname
+        if (!isset($item->str_proname) || empty($item->str_proname)) {
+            $arrayJson["products_not_found"][] = "Nom du produit manquant";
+            continue;
         }
-    } //moi
+
+        $product = $StockManager->getProduct($item->str_proname);
+        if ($product != null) {
+            foreach ($product as $value) {
+                $arrayJson_chidren = array();
+                $arrayJson_chidren['str_proname'] = $value['str_proname'];
+                $arrayJson_chidren['str_prodescription'] = $value['str_prodescription'];
+                $arrayJson_chidren['int_propricevente'] = $value['int_propricevente'];
+                $arrayJson_chidren['int_cprquantity'] = (int) $item->int_cprquantity;
+                $arrayJson_chidren['dbl_montant'] = (int) $value['int_propricevente'] * (int) $item->int_cprquantity;
+                $arrayJson["products"][] = $arrayJson_chidren;
+            }
+        } else {
+            $arrayJson["products_not_found"][] = $item->str_proname;
+        }
+    }
+}
+//moi
     else if ($mode == "listUsers") {
         $result = $ConfigurationManager->showAllOrOneBackUsers($FILTER_OPTIONS, $LIMIT, $PAGE);
         foreach ($result['data'] as $value) {
@@ -768,21 +776,21 @@ if ($mode == "listTypetransaction") {
         }
         $arrayJson["data"] = $OJson;
     } else if ($mode == "showAllProductImages") {
-        $result = $ConfigurationManager->showAllProductImages($LG_PROID);
+    $result = $ConfigurationManager->showAllProductImages($LG_PROID);
+    $OJson = [];
 
-        foreach ($result as $value) {
-            $arrayJson_chidren['id'] = $value['lg_proid'] ?? $value["lg_docid"];
-            $arrayJson_chidren['src'] = Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . ($value['str_propic'] ?? $value["str_docpath"]);
-            if ($value['str_propic']) {
-                $arrayJson_chidren['isMain'] = true;
-            } else {
-                $arrayJson_chidren['isMain'] = false;
-            }
-            $OJson[] = $arrayJson_chidren;
-        }
+    foreach ($result as $value) {
+        $arrayJson_chidren['id'] = $value['lg_proid'] ?? $value["lg_docid"];
+        $arrayJson_chidren['src'] = Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . (isset($value['str_propic']) ? $value['str_propic'] : $value["str_docpath"]);
+        
+        $arrayJson_chidren['isMain'] = isset($value['str_propic']) && !empty($value['str_propic']);
 
-        $arrayJson["data"] = $OJson;
-    } else if ($mode === "loadExternalDocuments") {
+        $OJson[] = $arrayJson_chidren;
+    }
+
+    $arrayJson["data"] = $OJson;
+}
+ else if ($mode === "loadExternalDocuments") {
         $ConfigurationManager->loadExternalDocuments($table, $search, $date);
     } else if ($mode === "loadInvoiceProduct") {
         $CommandeManager = new CommandeManager();

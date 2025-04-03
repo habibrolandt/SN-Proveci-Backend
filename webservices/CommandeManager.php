@@ -321,47 +321,100 @@ else if ($mode == "getClientPanier") {
             $arrayJson["TTRNAME"] = $value[0]['STR_TTRNAME'];
             $arrayJson["TTRDESCRIPTION"] = $value[0]['STR_TTRDESCRIPTION'];
         }
-    } else if ($mode == "createCommproduit") {
-        $LG_CPRID = null;
-        $token = $ConfigurationManager->generateToken();
+    } if ($mode == "createCommproduit") {
+    $LG_CPRID = null;
+    $token = $ConfigurationManager->generateToken();
+    
+    try {
         $OJson = $CommandeManager->createCommande($LG_AGEID, $STR_COMMNAME, $STR_COMMADRESSE, $STR_LIVADRESSE, $OUtilisateur, $token, $LG_COMMID);
-        isset($_REQUEST['CMD_DATA']) ? $CMD_DATA = $_REQUEST['CMD_DATA'] : $CMD_DATA = null;
-        if ($CMD_DATA != null) {
-            $arrayJson["product_added_to_cart"] = 0;
-            if ($OJson["LG_COMMID"] != "") {
-                foreach (json_decode($CMD_DATA) as $item) {
-                    $product = $StockManager->getProduct($item->str_proname);
+    } catch (Exception $e) {
+        die("Erreur lors de la création de la commande : " . $e->getMessage());
+    }
 
-                    if ($product != null) {
-                        $result = $CommandeManager->createCommandeProduit($OJson["LG_COMMID"], $OJson["LG_CLIID"], $LG_AGEID, $product[0]['lg_proid'], $item->int_cprquantity, $OUtilisateur, $token);
+    $CMD_DATA = $_REQUEST['CMD_DATA'] ?? null;
 
-                        if (is_array($result)) {
-                            $arrayJson["product_unavailable"][] = $item->str_proname;
-                        } else {
-                            $arrayJson["product_added_to_cart"] += 1;
-                            $arrayJson["product_added_data"][] = [
-                                'LG_CPRID' => $result,
-                                'ArtID' => $product[0]['lg_proid'],
-                                "int_cprquantity" => $item->int_cprquantity,
-                                "ArtPrixBase" => $product[0]['int_propricevente'],
-                                "ArtLib" => $product[0]['str_prodescription'], "ArtGPicID" => $product[0]['str_propic'] != null ? Parameters::$rootFolderRelative . "produits/" . $product[0]["lg_proid"] . "/" . $product[0]['str_propic'] : ""
-                            ];
-                        }
-                    }
+    if ($CMD_DATA !== null) {
+        $arrayJson["product_added_to_cart"] = 0;
+
+        if (!empty($OJson["LG_COMMID"])) {
+            foreach (json_decode($CMD_DATA) as $item) {
+                $productList = $StockManager->getProduct($item->str_proname);
+
+                // Vérification que nous avons bien un tableau contenant des données
+                if (!isset($productList[0]) || empty($productList[0])) {
+                    die("Erreur : Aucun produit trouvé.");
                 }
-                Parameters::buildSuccessMessage("Opération traitée avec succès");
-                $arrayJson["ITEMS_COUNT"] = count(json_decode($CMD_DATA));
+
+                // Récupération du premier élément du tableau
+                $product = $productList[0];
+
+                $LG_PROID = $product["lg_proid"];
+                $PrixBase = $product["int_propricevente"];
+                $Description = $product["str_prodescription"];
+                $Image = isset($product["str_propic"]) ? Parameters::$rootFolderRelative . "produits/" . $product["lg_proid"] . "/" . $product["str_propic"] : "";
+
+                // Vérification avant de créer la commande
+                if (!isset($LG_PROID) || empty($LG_PROID)) {
+                    die("Erreur : ID du produit invalide.");
+                }
+
+                try {
+                    $result = $CommandeManager->createCommandeProduit($OJson["LG_COMMID"], $OJson["LG_CLIID"], $LG_AGEID, $LG_PROID, $item->int_cprquantity, $OUtilisateur, $token);
+                } catch (Exception $e) {
+                    die("Erreur lors de l'ajout du produit : " . $e->getMessage());
+                }
+
+                if (is_array($result)) {
+                    $arrayJson["product_unavailable"][] = $item->str_proname;
+                } else {
+                    $arrayJson["product_added_to_cart"] += 1;
+                    $arrayJson["product_added_data"][] = [
+                        'LG_CPRID' => $result,
+                        'ArtID' => $LG_PROID,
+                        "int_cprquantity" => $item->int_cprquantity,
+                        "ArtPrixBase" => $PrixBase,
+                        "ArtLib" => $Description,
+                        "ArtGPicID" => $Image
+                    ];
+                }
             }
-        } else {
-            if ($OJson["LG_COMMID"] != "") {
-                $LG_CPRID = $CommandeManager->createCommandeProduit($OJson["LG_COMMID"], $OJson["LG_CLIID"], $LG_AGEID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur, $token);
-            }
+
+            var_dump($arrayJson);
+            exit;
+
+            Parameters::buildSuccessMessage("Opération traitée avec succès");
+            $arrayJson["ITEMS_COUNT"] = count(json_decode($CMD_DATA));
         }
-        $arrayJson["LG_COMMID"] = $OJson["LG_COMMID"];
-        if ($LG_CPRID) {
-            $arrayJson['LG_CPRID'] = $LG_CPRID;
-        }
-    } else if ($mode == "updateCommproduit") {
+    }
+}
+
+
+
+
+
+
+
+else {
+    $LG_CPRID = null; // Initialisation pour éviter l'erreur
+
+    if (isset($OJson["LG_COMMID"]) && !empty($OJson["LG_COMMID"])) {
+        $LG_CPRID = $CommandeManager->createCommandeProduit(
+            $OJson["LG_COMMID"], 
+            $OJson["LG_CLIID"], 
+            $LG_AGEID, 
+            $LG_PROID, 
+            $INT_CPRQUANTITY, 
+            $OUtilisateur, 
+            $token
+        );
+    }
+
+    $arrayJson["LG_COMMID"] = $OJson["LG_COMMID"] ?? null; // Assigner une valeur par défaut
+
+    if (!empty($LG_CPRID)) {
+        $arrayJson['LG_CPRID'] = $LG_CPRID;
+    }
+ else if ($mode == "updateCommproduit") {
         $token = $ConfigurationManager->generateToken();
         $result = $CommandeManager->updateCommandeProduit($LG_CPRID, $INT_CPRQUANTITY, $OUtilisateur, $token);
         if (is_array($result)) {
@@ -586,4 +639,5 @@ else if ($mode == "getClientPanier") {
 
 // Conversion en JSON et affichage
 echo json_encode($arrayJson);
+ }
 }

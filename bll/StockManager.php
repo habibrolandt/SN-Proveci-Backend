@@ -133,48 +133,63 @@ class StockManager implements StockInterface
         return $validation;
     }
 
-    public function getProductRemote($LG_PROID, $token = null)
-    {
+       public function getProductRemote($LG_PROID, $token = null)
+{
+    $ConfigurationManager = new ConfigurationManager();
+    $arraySql = new stdClass(); // Initialisation correcte avec un objet
 
-        $ConfigurationManager = new ConfigurationManager();
-        $arraySql = array();
-        try {
-            $token = $token != null ? $token : $ConfigurationManager->generateToken();
+    try {
+        $token = $token != null ? $token : $ConfigurationManager->generateToken();
 
-            $url = Parameters::$urlRootAPI . "/products/" . $LG_PROID . "?ColSuppl=ArtCategEnu,ArtFamilleEnu,ArtGammeEnu,ARTFREE0,ARTFREE1,ARTFREE2,ARTFREE3,ARTFREE4,ARTFREE5";
+        $url = Parameters::$urlRootAPI . "/products/" . $LG_PROID . "?ColSuppl=ArtCategEnu,ArtFamilleEnu,ArtGammeEnu,ARTFREE0,ARTFREE1,ARTFREE2,ARTFREE3,ARTFREE4,ARTFREE5";
 
-            $headers = array(
-                'Accept: application/json',
-                'Content-Type: application/x-www-form-urlencoded',
-                "api_key: " . Parameters::$apikey,
-                "token: " . $token
-            );
-            // Initialisation de cURL
-            $ch = curl_init($url);
+        $headers = [
+            'Accept: application/json',
+            'Content-Type: application/x-www-form-urlencoded',
+            "api_key: " . Parameters::$apikey,
+            "token: " . $token
+        ];
 
-            // Configuration de cURL
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        // Initialisation de cURL
+        $ch = curl_init($url);
 
-            $response = curl_exec($ch);
-            curl_close($ch);
+        // Configuration de cURL
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-            $obj = json_decode($response);
-            //var_dump($obj);
-            // Vérifier si la conversion a réussi
-            if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
-                die('Erreur lors du décodage JSON');
-            }
+        $response = curl_exec($ch);
+        curl_close($ch);
 
-            $arraySql = $obj;
-            $productInDataBase = $this->showAllOrOneProduct_legacy($arraySql->products[0]->ArtCode);
-            $arraySql->products[0]->str_propic = $productInDataBase[0]["str_propic"];
+        // Décodage JSON
+        $obj = json_decode($response);
 
-        } catch (Exception $exc) {
-            var_dump($exc->getTraceAsString());
+        if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
+            die('Erreur lors du décodage JSON');
         }
-        return $arraySql;
+
+        // Assigner l'objet JSON au retour
+        $arraySql = $obj;
+
+        // Vérifier si products est bien défini
+        if (isset($arraySql->products) && is_array($arraySql->products) && !empty($arraySql->products)) {
+            $productInDataBase = $this->showAllOrOneProduct_legacy($arraySql->products[0]->ArtCode);
+
+            if (!empty($productInDataBase)) {
+                // Vérifier si `productInDataBase[0]` est un tableau ou un objet
+                if (is_array($productInDataBase[0])) {
+                    $arraySql->products[0]->str_propic = $productInDataBase[0]["str_propic"];
+                } elseif (is_object($productInDataBase[0])) {
+                    $arraySql->products[0]->str_propic = $productInDataBase[0]->str_propic;
+                }
+            }
+        }
+    } catch (Exception $exc) {
+        var_dump($exc->getTraceAsString());
     }
+
+    return $arraySql;
+}
+
 
 
     public function getSubstitutionProduct($LG_PROID)
