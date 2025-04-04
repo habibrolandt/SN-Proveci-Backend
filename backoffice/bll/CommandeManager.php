@@ -380,144 +380,108 @@ class CommandeManager implements CommandeInterface
 
     }
 
-    public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur, $token) 
-{
-    $validation = "";
-    $LG_CPRID = "";
-    $StockManager = new StockManager();
-
-    try {
-        $this->OCommproduit = $this->getCommandeProduit($LG_COMMID, $LG_PROID);
-
-        if ($this->OCommproduit == null) {
-            try {
-                $ArtStk = (float) $StockManager->getProductRemote($LG_PROID, $token)->products[0]->ArtStk;
-            } catch (Exception $e) {
-                die("Erreur lors de la récupération du stock du produit : " . $e->getMessage());
-            }
-
-            if ($INT_CPRQUANTITY > $ArtStk) {
-                Parameters::buildErrorMessage("Échec d'ajout du produit à la commande. La quantité demandée dépasse le stock.");
-                return ["true_pro_qty" => $ArtStk];
-            }
-
-            try {
-                $LG_CPRID = $this->createOrderProduitExternal($LG_COMMID, $LG_CLIID, $LG_PROID, $INT_CPRQUANTITY, $token);
-            } catch (Exception $e) {
-                die("Erreur lors de la création du produit dans la commande externe : " . $e->getMessage());
-            }
-
-            if (empty($LG_CPRID)) {
-                Parameters::buildErrorMessage("Échec d'ajout du produit à la commande. Une erreur est survenue.");
-                return $validation;
-            }
-
-            try {
-                $validation = $this->initCommandeProduit($LG_CPRID, $LG_COMMID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur);
-            } catch (Exception $e) {
-                die("Erreur lors de l'initialisation du produit dans la commande : " . $e->getMessage());
-            }
-        } else {
-            try {
-                $LG_CPRID = $this->OCommproduit[0][0];
-                $LG_CPRID = $this->updateCommandeProduit($LG_CPRID, (int) $this->OCommproduit[0]["int_cprquantity"] + (int) $INT_CPRQUANTITY, $OUtilisateur, $token);
-                $validation = $LG_CPRID;
-            } catch (Exception $e) {
-                die("Erreur lors de la mise à jour du produit dans la commande : " . $e->getMessage());
-            }
-        }
-
+    public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur, $token)
+    {
+        //$ConfigurationManager = new ConfigurationManager();
+        $validation = "";
+        $LG_CPRID = "";
+        $StockManager = new StockManager();
         try {
+            $this->OCommproduit = $this->getCommandeProduit($LG_COMMID, $LG_PROID);
+
+            if ($this->OCommproduit == null) {
+                $ArtStk = (float)$StockManager->getProductRemote($LG_PROID, $token)->products[0]->ArtStk;
+                if ($INT_CPRQUANTITY > $ArtStk) {
+                    Parameters::buildErrorMessage("Echec d'ajout du produit a la commande. La quantité demandé dépasse le stock");
+                    return ["true_pro_qty" => $ArtStk];
+                }
+                $LG_CPRID = $this->createOrderProduitExternal($LG_COMMID, $LG_CLIID, $LG_PROID, $INT_CPRQUANTITY, $token);
+
+
+                //echo "====".$LG_CPRID."++++";
+                if ($LG_CPRID == "") {
+                    Parameters::buildErrorMessage("Echec d'ajout du produit a la commande. Une erreur est survenu sur votre commande");
+                    return $validation;
+                }
+                $validation = $this->initCommandeProduit($LG_CPRID, $LG_COMMID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur);
+            } else {
+                $LG_CPRID = $this->OCommproduit[0][0];
+                $LG_CPRID = $this->updateCommandeProduit($LG_CPRID, (int)$this->OCommproduit[0]["int_cprquantity"] + (int)$INT_CPRQUANTITY, $OUtilisateur, $token);
+                $validation = $LG_CPRID;
+
+                //TODO: A faire
+//                $PanierClient = $this->getExternalClientPanier($LG_AGEID, $LG_COMMID, $token);
+////                var_dump($PanierClient);
+//                $this->updateCommande($LG_COMMID, $PanierClient->pieces[0]->PcvMtHT, $PanierClient->pieces[0]->PcvMtTTC);
+            }
+
+
             $PanierClient = $this->getExternalClientPanier($LG_AGEID, $LG_COMMID, $token);
             $this->updateCommande($LG_COMMID, $PanierClient->pieces[0]->PcvMtHT, $PanierClient->pieces[0]->PcvMtTTC);
-        } catch (Exception $e) {
-            die("Erreur lors de la mise à jour de la commande : " . $e->getMessage());
+        } catch (Exception $exc) {
+            echo $exc->getTraceAsString();
         }
-
-    } catch (Exception $exc) {
-        die("Exception attrapée : " . $exc->getMessage());
+        return $validation;
     }
 
-    return $validation;
-}
+    public function createOrderProduitExternal($LG_COMMID, $LG_CLIID, $LG_PROID, $INT_CPRQUANTITY, $token)
+    {
+        $validation = "";
+        try {
+            // URL de l'API
+            $url = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/carts/" . $LG_COMMID . "/lines";
+//            var_dump($url);
 
+            // Headers de la requête
+            $headers = array(
+                'Accept: application/json',
+                'Content-Type: application/x-www-form-urlencoded',
+                "api_key: " . Parameters::$apikey,
+                "token: " . $token
+            );
 
+            // Données à envoyer
+            $data = array(
+                "art_id" => $LG_PROID,
+                "qty" => $INT_CPRQUANTITY
+            );
 
-    public function createOrderProduitExternal($LG_COMMID, $LG_CLIID, $LG_PROID, $INT_CPRQUANTITY, $token) 
-{
-    $validation = "";
-    
-    try {
-        // URL de l'API
-        $url = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/carts/" . $LG_COMMID . "/lines";
-        
-        // Headers de la requête
-        $headers = array(
-            'Accept: application/json',
-            'Content-Type: application/x-www-form-urlencoded',
-            "api_key: " . Parameters::$apikey,
-            "token: " . $token
-        );
+            // Initialisation de cURL
+            $ch = curl_init();
 
-        // Données à envoyer
-        $data = array(
-            "art_id" => $LG_PROID,
-            "qty" => $INT_CPRQUANTITY
-        );
+            // Configuration de cURL
+            curl_setopt($ch, CURLOPT_URL, $url);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($ch, CURLOPT_POST, true);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-        // Initialisation de cURL
-        $ch = curl_init();
-        
-        // Configuration de cURL
-        curl_setopt($ch, CURLOPT_URL, $url);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-        curl_setopt($ch, CURLOPT_POST, true);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+// Exécution de la requête
+            $response = curl_exec($ch);
 
-        // Exécution de la requête
-        $response = curl_exec($ch);
+// Vérification des erreurs
+            if (curl_errno($ch)) {
+                echo 'Erreur cURL : ' . curl_error($ch);
+            }
 
-        // Vérification des erreurs cURL
-        if (curl_errno($ch)) {
-            throw new Exception('Erreur cURL : ' . curl_error($ch));
+// Fermeture de la session cURL
+            curl_close($ch);
+
+//            echo $response;
+            // Convertir le JSON en objet PHP
+            $obj = json_decode($response);
+//            var_dump($obj);
+            // Vérifier si la conversion a réussi
+            if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
+                die('Erreur lors du décodage JSON');
+            }
+
+            $validation = $obj->PlvID != null ? $obj->PlvID : "";
+        } catch (Exception $exc) {
+            echo $exc->getTraceAsString();
         }
-
-        // Fermeture de la session cURL
-        curl_close($ch);
-        
-        var_dump($response);
-exit;
-
-
-        // Vérification de la réponse
-        if ($response === false || empty($response)) {
-            throw new Exception("Réponse API vide ou invalide !");
-        }
-
-        // Convertir le JSON en objet PHP
-        $obj = json_decode($response);
-
-        // Vérification si la conversion JSON a réussi
-        if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception("Erreur lors du décodage JSON : " . json_last_error_msg());
-        }
-
-        // Vérification de la structure de la réponse
-        if (!isset($obj->PlvID)) {
-            throw new Exception("La réponse API ne contient pas l'ID du produit !");
-        }
-
-        // Assigner la validation
-        $validation = $obj->PlvID;
-
-    } catch (Exception $exc) {
-        die("Exception attrapée : " . $exc->getMessage());
+        return $validation;
     }
-
-    return $validation;
-}
-
 
     public function getCommandeProduit($LG_COMMID, $LG_PROID)
     {

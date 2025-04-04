@@ -1966,31 +1966,42 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
     }
 
     public function markProductAsViewed($LG_PROID, $OUtilisateur)
-    {
-        $validation = false;
-        $StockManger = new StockManager();
-        $product = $StockManger->showAllOrOneProduct_legacy($LG_PROID);
-        if ($product == null) {
-            Parameters::buildErrorMessage("Produit inexistant");
-            return $validation;
-        }
-        try {
-            $params = array("lg_pistid" => generateRandomNumber(), "p_key" => $product[0]['lg_proid'], "lg_lstid" => Parameters::$lst_viewed_product, "lg_uticreatedid" => $OUtilisateur ? $OUtilisateur[0]["lg_utiid"] : Parameters::$defaultAdminId, "dt_pistcreated" => get_now(), "str_piststatut" => Parameters::$statut_enable);
-            if ($this->dbconnnexion != null) {
-                if (Persist($this->Piste_audit, $params, $this->dbconnnexion)) {
-                    $validation = true;
-                    Parameters::buildSuccessMessage("Produit " . $product['str_prodescription'] . " marqué comme vu avec succès");
-                } else {
-                    Parameters::buildErrorMessage("Échec de marquage du produit comme vu");
-                }
-            }
-        } catch (Exception $exc) {
-            error_log($exc->getTraceAsString());
-            Parameters::buildErrorMessage("Échec de marquage du produit comme vu. Veuillez contacter votre administrateur");
-        }
+{
+    $validation = false;
+    $StockManger = new StockManager();
+    $product = $StockManger->showAllOrOneProduct_legacy($LG_PROID);
 
+    if ($product == null || !isset($product[0]['str_prodescription'])) {
+        Parameters::buildErrorMessage("Produit inexistant ou description manquante");
         return $validation;
     }
+
+    try {
+        $params = array(
+            "lg_pistid" => generateRandomNumber(),
+            "p_key" => $product[0]['lg_proid'],
+            "lg_lstid" => Parameters::$lst_viewed_product,
+            "lg_uticreatedid" => $OUtilisateur ? $OUtilisateur[0]["lg_utiid"] : Parameters::$defaultAdminId,
+            "dt_pistcreated" => get_now(),
+            "str_piststatut" => Parameters::$statut_enable
+        );
+
+        if ($this->dbconnnexion != null) {
+            if (Persist($this->Piste_audit, $params, $this->dbconnnexion)) {
+                $validation = true;
+                Parameters::buildSuccessMessage("Produit " . $product[0]['str_prodescription'] . " marqué comme vu avec succès");
+            } else {
+                Parameters::buildErrorMessage("Échec de marquage du produit comme vu");
+            }
+        }
+    } catch (Exception $exc) {
+        error_log($exc->getTraceAsString());
+        Parameters::buildErrorMessage("Échec de marquage du produit comme vu. Veuillez contacter votre administrateur");
+    }
+
+    return $validation;
+}
+
 
     //moi
     public function uploadMainImageProduct($PICTURE, $LG_PROID, $OUtilisateur)

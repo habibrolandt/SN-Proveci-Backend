@@ -1,4 +1,5 @@
 <?php
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
@@ -106,7 +107,7 @@ if ($mode == "listCommande") {
                 $line->str_proslug = $OProduit[0]['str_proslug'];
             }
         }
-        $arrayJson->clisolde = (int)$CommandeManager->getClientSolde($value[0]["lg_socextid"])->clisolde;
+        $arrayJson->clisolde = (int) $CommandeManager->getClientSolde($value[0]["lg_socextid"])->clisolde;
     }
 } else if ($mode === "listProductOnOrder") {
     $token = $ConfigurationManager->generateToken();
@@ -138,7 +139,7 @@ if ($mode == "listCommande") {
         // Vérification de chaque donnée avant ajout
         $arrayJsonChildren = [
             'ArtLib' => isset($line->PlvLib) ? $line->PlvLib : "",
-            'int_cprquantity' => isset($line->PlvQteUV) ? (int)$line->PlvQteUV : 0,
+            'int_cprquantity' => isset($line->PlvQteUV) ? (int) $line->PlvQteUV : 0,
             'ArtCode' => isset($line->PlvCode) ? $line->PlvCode : "",
             'ArtPrixBase' => isset($line->PlvPUNet) ? $line->PlvPUNet : 0
         ];
@@ -156,8 +157,7 @@ if ($mode == "listCommande") {
     $arrayJson["data"] = $OJson;
     echo json_encode($arrayJson, JSON_PRETTY_PRINT);
     exit;
-}
- else if ($mode == "getCalendar") {
+} else if ($mode == "getCalendar") {
     $listZonelivraison = $CommandeManager->showAllOrOneZonelivraisonActive();
     $tabsData = array();
     $listsData = array();
@@ -197,9 +197,7 @@ if ($mode == "listCommande") {
     );
 
     echo json_encode($arrayJson); // Encodage en JSON
-}
-
-else if ($mode == "getClientPanier") {
+} else if ($mode == "getClientPanier") {
     $value = $CommandeManager->getClientPanier($LG_AGEID);
     if ($value) {
         $arrayJson["data"] = $value;
@@ -225,13 +223,13 @@ else if ($mode == "getClientPanier") {
 
     $arrayJson["data"] = $OJson;
     $arrayJson["total"] = $result['total'];
-    $arrayJson["limit"] = (int)$LIMIT;
-    $arrayJson["page"] = (int)$PAGE;
+    $arrayJson["limit"] = (int) $LIMIT;
+    $arrayJson["page"] = (int) $PAGE;
 } else if ($mode === "listOrdersByClient") {
     $orders = $CommandeManager->showAllOrdersByClientExternal($LG_CLIID)->pieces;
     $sumAmountOrders = 0;
     foreach ($orders as $order) {
-        $sumAmountOrders += (int)$order->PcvMtTTC;
+        $sumAmountOrders += (int) $order->PcvMtTTC;
     }
     $arrayJson["data"]["sumAmountOrders"] = $sumAmountOrders;
 } else {
@@ -253,7 +251,7 @@ else if ($mode == "getClientPanier") {
     }
 
     if (isset($_REQUEST['INT_CPRQUANTITY']) && $_REQUEST['INT_CPRQUANTITY'] != "") {
-        $INT_CPRQUANTITY = (int)$_REQUEST['INT_CPRQUANTITY'];
+        $INT_CPRQUANTITY = (int) $_REQUEST['INT_CPRQUANTITY'];
     }
 
     if (isset($_REQUEST['LG_CPRID'])) {
@@ -321,323 +319,291 @@ else if ($mode == "getClientPanier") {
             $arrayJson["TTRNAME"] = $value[0]['STR_TTRNAME'];
             $arrayJson["TTRDESCRIPTION"] = $value[0]['STR_TTRDESCRIPTION'];
         }
-    } if ($mode == "createCommproduit") {
-    $LG_CPRID = null;
-    $token = $ConfigurationManager->generateToken();
-    
-    try {
+    } else if ($mode == "createCommproduit") {
+        $LG_CPRID = null;
+        $token = $ConfigurationManager->generateToken();
         $OJson = $CommandeManager->createCommande($LG_AGEID, $STR_COMMNAME, $STR_COMMADRESSE, $STR_LIVADRESSE, $OUtilisateur, $token, $LG_COMMID);
-    } catch (Exception $e) {
-        die("Erreur lors de la création de la commande : " . $e->getMessage());
-    }
+        isset($_REQUEST['CMD_DATA']) ? $CMD_DATA = $_REQUEST['CMD_DATA'] : $CMD_DATA = null;
+        if ($CMD_DATA != null) {
+            $arrayJson["product_added_to_cart"] = 0;
+            if ($OJson["LG_COMMID"] != "") {
+                foreach (json_decode($CMD_DATA) as $item) {
+                    $product = $StockManager->getProduct($item->str_proname);
 
-    $CMD_DATA = $_REQUEST['CMD_DATA'] ?? null;
+                    if ($product != null) {
+                        $result = $CommandeManager->createCommandeProduit($OJson["LG_COMMID"], $OJson["LG_CLIID"], $LG_AGEID, $product[0]['lg_proid'], $item->int_cprquantity, $OUtilisateur, $token);
 
-    if ($CMD_DATA !== null) {
-        $arrayJson["product_added_to_cart"] = 0;
-
-        if (!empty($OJson["LG_COMMID"])) {
-            foreach (json_decode($CMD_DATA) as $item) {
-                $productList = $StockManager->getProduct($item->str_proname);
-
-                // Vérification que nous avons bien un tableau contenant des données
-                if (!isset($productList[0]) || empty($productList[0])) {
-                    die("Erreur : Aucun produit trouvé.");
+                        if (is_array($result)) {
+                            $arrayJson["product_unavailable"][] = $item->str_proname;
+                        } else {
+                            $arrayJson["product_added_to_cart"] += 1;
+                            $arrayJson["product_added_data"][] = [
+                                'LG_CPRID' => $result,
+                                'ArtID' => $product[0]['lg_proid'],
+                                "int_cprquantity" => $item->int_cprquantity,
+                                "ArtPrixBase" => $product[0]['int_propricevente'],
+                                "ArtLib" => $product[0]['str_prodescription'], "ArtGPicID" => $product[0]['str_propic'] != null ? Parameters::$rootFolderRelative . "produits/" . $product[0]["lg_proid"] . "/" . $product[0]['str_propic'] : ""
+                            ];
+                        }
+                    }
                 }
+                Parameters::buildSuccessMessage("Opération traitée avec succès");
+                header('Content-Type: application/json');
+                echo json_encode($arrayJson, JSON_PRETTY_PRINT);
+                exit();
 
-                // Récupération du premier élément du tableau
-                $product = $productList[0];
-
-                $LG_PROID = $product["lg_proid"];
-                $PrixBase = $product["int_propricevente"];
-                $Description = $product["str_prodescription"];
-                $Image = isset($product["str_propic"]) ? Parameters::$rootFolderRelative . "produits/" . $product["lg_proid"] . "/" . $product["str_propic"] : "";
-
-                // Vérification avant de créer la commande
-                if (!isset($LG_PROID) || empty($LG_PROID)) {
-                    die("Erreur : ID du produit invalide.");
-                }
-
-                try {
-                    $result = $CommandeManager->createCommandeProduit($OJson["LG_COMMID"], $OJson["LG_CLIID"], $LG_AGEID, $LG_PROID, $item->int_cprquantity, $OUtilisateur, $token);
-                } catch (Exception $e) {
-                    die("Erreur lors de l'ajout du produit : " . $e->getMessage());
-                }
-
-                if (is_array($result)) {
-                    $arrayJson["product_unavailable"][] = $item->str_proname;
-                } else {
-                    $arrayJson["product_added_to_cart"] += 1;
-                    $arrayJson["product_added_data"][] = [
-                        'LG_CPRID' => $result,
-                        'ArtID' => $LG_PROID,
-                        "int_cprquantity" => $item->int_cprquantity,
-                        "ArtPrixBase" => $PrixBase,
-                        "ArtLib" => $Description,
-                        "ArtGPicID" => $Image
-                    ];
-                }
+                $arrayJson["ITEMS_COUNT"] = count(json_decode($CMD_DATA));
             }
-
-            var_dump($arrayJson);
-            exit;
-
-            Parameters::buildSuccessMessage("Opération traitée avec succès");
-            $arrayJson["ITEMS_COUNT"] = count(json_decode($CMD_DATA));
+        } else {
+            if ($OJson["LG_COMMID"] != "") {
+                $LG_CPRID = $CommandeManager->createCommandeProduit($OJson["LG_COMMID"], $OJson["LG_CLIID"], $LG_AGEID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur, $token);
+            }
         }
-    }
-}
+        $arrayJson["LG_COMMID"] = $OJson["LG_COMMID"];
+        if ($LG_CPRID) {
+            $arrayJson['LG_CPRID'] = $LG_CPRID;
+        }
+    } else {
+        $LG_CPRID = null; // Initialisation pour éviter l'erreur
 
-
-
-
-
-
-
-else {
-    $LG_CPRID = null; // Initialisation pour éviter l'erreur
-
-    if (isset($OJson["LG_COMMID"]) && !empty($OJson["LG_COMMID"])) {
-        $LG_CPRID = $CommandeManager->createCommandeProduit(
-            $OJson["LG_COMMID"], 
-            $OJson["LG_CLIID"], 
-            $LG_AGEID, 
-            $LG_PROID, 
-            $INT_CPRQUANTITY, 
-            $OUtilisateur, 
-            $token
-        );
-    }
-
-    $arrayJson["LG_COMMID"] = $OJson["LG_COMMID"] ?? null; // Assigner une valeur par défaut
-
-    if (!empty($LG_CPRID)) {
-        $arrayJson['LG_CPRID'] = $LG_CPRID;
-    }
- else if ($mode == "updateCommproduit") {
-        $token = $ConfigurationManager->generateToken();
-        $result = $CommandeManager->updateCommandeProduit($LG_CPRID, $INT_CPRQUANTITY, $OUtilisateur, $token);
-        if (is_array($result)) {
-            $arrayJson["LG_COMMID"] = $result['lg_cprid'];
-            $arrayJson["PcvMtHT"] = $result['PcvMtHT'];
-            $arrayJson["PcvMtTTC"] = $result['PcvMtTTC'];
+        if (isset($OJson["LG_COMMID"]) && !empty($OJson["LG_COMMID"])) {
+            $LG_CPRID = $CommandeManager->createCommandeProduit(
+                    $OJson["LG_COMMID"],
+                    $OJson["LG_CLIID"],
+                    $LG_AGEID,
+                    $LG_PROID,
+                    $INT_CPRQUANTITY,
+                    $OUtilisateur,
+                    $token
+            );
         }
 
-    } else if ($mode == "deleteCommproduit") {
-        $token = $ConfigurationManager->generateToken();
-        $result = $CommandeManager->deleteCommandeProduit($LG_CPRID, $token);
-        if (is_array($result)) {
-            $arrayJson["LG_COMMID"] = $result["lg_commid"];
-            $arrayJson["PcvMtHT"] = $result['PcvMtHT'];
-            $arrayJson["PcvMtTTC"] = $result['PcvMtTTC'];
-        }
-    } else if ($mode == "updateCommande") {
-        $value = $CommandeManager->updateCommande($LG_COMMID, "111111", "111111");
-        if ($value) {
-            $arrayJson["data"] = $value;
-        }
-    } //moi
-    else if ($mode == "listeCommandeLocal") {
-        isset($_REQUEST['ORDER_NOT_ON_LIVRAISON']) ? $ORDER_NOT_ON_LIVRAISON = $_REQUEST['ORDER_NOT_ON_LIVRAISON'] : $ORDER_NOT_ON_LIVRAISON = false;
-        $result = $CommandeManager->showAllCommandeproduit($FILTER_OPTIONS, $LIMIT, $PAGE, $ORDER_NOT_ON_LIVRAISON);
+        $arrayJson["LG_COMMID"] = $OJson["LG_COMMID"] ?? null; // Assigner une valeur par défaut
 
-        $arrayJson["data"] = $result['data'];
-        $arrayJson["total"] = $result['total'];
-        $arrayJson["limit"] = (int)$LIMIT;
-        $arrayJson["page"] = (int)$PAGE;
-    } else if ($mode == "getCommande") {
-        $result = $CommandeManager->getCommande($LG_COMMID);
-        $arrayJson['data'] = [
-            "lg_commid" => $result['lg_commid'],
-            "str_commname" => $result["str_commname"],
-            "dt_commupdated" => $result["dt_commupdated"],
-            "str_commstatut" => $result["str_commstatut"],
-            "dbl_commmtht" => $result["dbl_commmtht"],
-            "dbl_commmtttc" => $result["dbl_commmtttc"],
-            "lg_ageid" => $result["lg_ageid"],
-            "str_socname" => $result["str_socname"],
-            "str_socdescription" => $result["str_socdescription"],
-            'str_socphone' => $result['str_socphone'],
-            'str_socmail' => $result['str_socmail'],
-            'str_socadresse' => $result['str_socadresse'],
-            'type_societe' => $result['str_lstdescription'],
-            "lg_socextid" => $result["lg_socextid"],
-            "str_pays" => $result["str_pays"],
-            "lg_livid" => $result["zone_livraison"],
-            "str_livadresse" => $result["str_livadresse"],
-        ];
-    } //moi
-    else if ($mode == "validationCommande") {
-        $token = $ConfigurationManager->generateToken();
-        $value = $CommandeManager->handleCommande($LG_AGEID, $STR_COMMLIVADRESSE, $LG_ZONLIVID, $token, $OUtilisateur);
-        if ($value) {
-            $arrayJson["data"] = $value;
-        }
-    } else if ($mode == "adminCartValidation") {
-        $token = $ConfigurationManager->generateToken();
-        $value = $CommandeManager->adminCartValidation($LG_COMMID, $STR_COMMLIVADRESSE, $LG_ZONLIVID, $token, $OUtilisateur);
-        if ($value) {
-            $arrayJson["data"] = $value;
-        }
-    } else if ($mode == "addDeliveryPlace") {
-        $result = $CommandeManager->addDeleveryZone($STR_LSTVALUE, $STR_LSTDESCRIPTION, $OUtilisateur);
-        if ($result["data"]) {
-            $array[] = [
-                "id" => $result["data"]["lg_lstid"],
-                "name" => $result["data"]["str_lstvalue"],
-                "description" => $result["data"]["str_lstdescription"],
-                "created_at" => $result["data"]["dt_lstcreated"]
-            ];
-            $arrayJson["zone_de_livraison"] = $array;
+        if (!empty($LG_CPRID)) {
+            $arrayJson['LG_CPRID'] = $LG_CPRID;
+        } else if ($mode == "updateCommproduit") {
+            $token = $ConfigurationManager->generateToken();
+            $result = $CommandeManager->updateCommandeProduit($LG_CPRID, $INT_CPRQUANTITY, $OUtilisateur, $token);
+            if (is_array($result)) {
+                $arrayJson["LG_COMMID"] = $result['lg_cprid'];
+                $arrayJson["PcvMtHT"] = $result['PcvMtHT'];
+                $arrayJson["PcvMtTTC"] = $result['PcvMtTTC'];
+            }
+        } else if ($mode == "deleteCommproduit") {
+            $token = $ConfigurationManager->generateToken();
+            $result = $CommandeManager->deleteCommandeProduit($LG_CPRID, $token);
+            if (is_array($result)) {
+                $arrayJson["LG_COMMID"] = $result["lg_commid"];
+                $arrayJson["PcvMtHT"] = $result['PcvMtHT'];
+                $arrayJson["PcvMtTTC"] = $result['PcvMtTTC'];
+            }
+        } else if ($mode == "updateCommande") {
+            $value = $CommandeManager->updateCommande($LG_COMMID, "111111", "111111");
+            if ($value) {
+                $arrayJson["data"] = $value;
+            }
+        } //moi
+        else if ($mode == "listeCommandeLocal") {
+            isset($_REQUEST['ORDER_NOT_ON_LIVRAISON']) ? $ORDER_NOT_ON_LIVRAISON = $_REQUEST['ORDER_NOT_ON_LIVRAISON'] : $ORDER_NOT_ON_LIVRAISON = false;
+            $result = $CommandeManager->showAllCommandeproduit($FILTER_OPTIONS, $LIMIT, $PAGE, $ORDER_NOT_ON_LIVRAISON);
+
+            $arrayJson["data"] = $result['data'];
             $arrayJson["total"] = $result['total'];
-        }
-    } else if ($mode == "getDeliveryPlace") {
-        $result = $CommandeManager->getDeliveryPlace($FILTER_OPTIONS, $LIMIT, $PAGE);
+            $arrayJson["limit"] = (int) $LIMIT;
+            $arrayJson["page"] = (int) $PAGE;
+        } else if ($mode == "getCommande") {
+            $result = $CommandeManager->getCommande($LG_COMMID);
+            $arrayJson['data'] = [
+                "lg_commid" => $result['lg_commid'],
+                "str_commname" => $result["str_commname"],
+                "dt_commupdated" => $result["dt_commupdated"],
+                "str_commstatut" => $result["str_commstatut"],
+                "dbl_commmtht" => $result["dbl_commmtht"],
+                "dbl_commmtttc" => $result["dbl_commmtttc"],
+                "lg_ageid" => $result["lg_ageid"],
+                "str_socname" => $result["str_socname"],
+                "str_socdescription" => $result["str_socdescription"],
+                'str_socphone' => $result['str_socphone'],
+                'str_socmail' => $result['str_socmail'],
+                'str_socadresse' => $result['str_socadresse'],
+                'type_societe' => $result['str_lstdescription'],
+                "lg_socextid" => $result["lg_socextid"],
+                "str_pays" => $result["str_pays"],
+                "lg_livid" => $result["zone_livraison"],
+                "str_livadresse" => $result["str_livadresse"],
+            ];
+        } //moi
+        else if ($mode == "validationCommande") {
+            $token = $ConfigurationManager->generateToken();
+            $value = $CommandeManager->handleCommande($LG_AGEID, $STR_COMMLIVADRESSE, $LG_ZONLIVID, $token, $OUtilisateur);
+            if ($value) {
+                $arrayJson["data"] = $value;
+            }
+        } else if ($mode == "adminCartValidation") {
+            $token = $ConfigurationManager->generateToken();
+            $value = $CommandeManager->adminCartValidation($LG_COMMID, $STR_COMMLIVADRESSE, $LG_ZONLIVID, $token, $OUtilisateur);
+            if ($value) {
+                $arrayJson["data"] = $value;
+            }
+        } else if ($mode == "addDeliveryPlace") {
+            $result = $CommandeManager->addDeleveryZone($STR_LSTVALUE, $STR_LSTDESCRIPTION, $OUtilisateur);
+            if ($result["data"]) {
+                $array[] = [
+                    "id" => $result["data"]["lg_lstid"],
+                    "name" => $result["data"]["str_lstvalue"],
+                    "description" => $result["data"]["str_lstdescription"],
+                    "created_at" => $result["data"]["dt_lstcreated"]
+                ];
+                $arrayJson["zone_de_livraison"] = $array;
+                $arrayJson["total"] = $result['total'];
+            }
+        } else if ($mode == "getDeliveryPlace") {
+            $result = $CommandeManager->getDeliveryPlace($FILTER_OPTIONS, $LIMIT, $PAGE);
 //    var_dump($result["data"]);
-        foreach ($result['data'] as $item) {
-            $arrayJsonChildren[] = [
-                "id" => $item["lg_lstid"],
-                "name" => $item["str_lstvalue"],
-                "description" => $item["str_lstdescription"],
-                "created_at" => $item["dt_lstcreated"]
-            ];
-        }
-        $arrayJson["data"] = $arrayJsonChildren == null ? [] : $arrayJsonChildren;
-        $arrayJson["total"] = $result['total'];
-        $arrayJson["limit"] = (int)$LIMIT;
-        $arrayJson["page"] = (int)$PAGE;
-
-    } else if ($mode == "updateDeliveryPlace") {
-        $value = $CommandeManager->updateDeliveryPlace($LG_LSTID, $STR_LSTVALUE, $STR_LSTDESCRIPTION, $OUtilisateur);
-        if ($value) {
-            $arrayJson["data"] = $value;
-        }
-    } else if ($mode == "deleteDeliveryPlace") {
-        isset($_REQUEST['LG_LSTID']) ? $LG_LSTID = $_REQUEST['LG_LSTID'] : $LG_LSTID = null;
-        isset($_REQUEST['LIST_LSTID']) ? $LIST_LSTID = $_REQUEST['LIST_LSTID'] : $LIST_LSTID = null;
-        $result = $CommandeManager->deleteDeliveryPlace($LG_LSTID, $LIST_LSTID, $OUtilisateur);
-        if ($result["status"]) {
-            $arrayJson["data"] = $result["status"];
-        }
-        $arrayJson["total"] = $result['total'];
-    } else if ($mode == "createDeliveryCalendar") {
-        $LG_LIVID = $CommandeManager->createDeliveryCalendar($STR_LIVNAME, $DT_LIVBEGIN, $DT_LIVEND, $LG_LSTID, $OUtilisateur);
-        if (isset($_REQUEST['CMD_LIST'])) {
-            $CMD_LIST = $_REQUEST['CMD_LIST'];
+            foreach ($result['data'] as $item) {
+                $arrayJsonChildren[] = [
+                    "id" => $item["lg_lstid"],
+                    "name" => $item["str_lstvalue"],
+                    "description" => $item["str_lstdescription"],
+                    "created_at" => $item["dt_lstcreated"]
+                ];
+            }
+            $arrayJson["data"] = $arrayJsonChildren == null ? [] : $arrayJsonChildren;
+            $arrayJson["total"] = $result['total'];
+            $arrayJson["limit"] = (int) $LIMIT;
+            $arrayJson["page"] = (int) $PAGE;
+        } else if ($mode == "updateDeliveryPlace") {
+            $value = $CommandeManager->updateDeliveryPlace($LG_LSTID, $STR_LSTVALUE, $STR_LSTDESCRIPTION, $OUtilisateur);
+            if ($value) {
+                $arrayJson["data"] = $value;
+            }
+        } else if ($mode == "deleteDeliveryPlace") {
+            isset($_REQUEST['LG_LSTID']) ? $LG_LSTID = $_REQUEST['LG_LSTID'] : $LG_LSTID = null;
+            isset($_REQUEST['LIST_LSTID']) ? $LIST_LSTID = $_REQUEST['LIST_LSTID'] : $LIST_LSTID = null;
+            $result = $CommandeManager->deleteDeliveryPlace($LG_LSTID, $LIST_LSTID, $OUtilisateur);
+            if ($result["status"]) {
+                $arrayJson["data"] = $result["status"];
+            }
+            $arrayJson["total"] = $result['total'];
+        } else if ($mode == "createDeliveryCalendar") {
+            $LG_LIVID = $CommandeManager->createDeliveryCalendar($STR_LIVNAME, $DT_LIVBEGIN, $DT_LIVEND, $LG_LSTID, $OUtilisateur);
+            if (isset($_REQUEST['CMD_LIST'])) {
+                $CMD_LIST = $_REQUEST['CMD_LIST'];
+                $CommandeManager->createDeliveryDetails($LG_LIVID, $CMD_LIST, $OUtilisateur);
+            }
+        } else if ($mode == "updateDeliveryCalendar") {
+            isset($_REQUEST['CMD_LIST']) ? $CMD_LIST = $_REQUEST['CMD_LIST'] : $CMD_LIST = null;
+            $CommandeManager->updateDeliveryCalendar($LG_LIVID, $STR_LIVNAME, $DT_LIVBEGIN, $DT_LIVEND, $LG_LSTID, $CMD_LIST, $OUtilisateur);
+        } else if ($mode == "deleteDeliveryCalendar") {
+            $result = $CommandeManager->deleteDeliveryCalendar($LIST_LG_LIVID);
+            $arrayJson["total"] = $result['total'];
+        } else if ($mode == "closeDeliveryCalendar") {
+            $CommandeManager->closeDeliveryCalendar($LG_LIVID);
+        } else if ($mode == "createDeliveryDetails") {
+            isset($_REQUEST['CMD_LIST']) ? $CMD_LIST = $_REQUEST['CMD_LIST'] : $CMD_LIST = null;
             $CommandeManager->createDeliveryDetails($LG_LIVID, $CMD_LIST, $OUtilisateur);
-        }
-    } else if ($mode == "updateDeliveryCalendar") {
-        isset($_REQUEST['CMD_LIST']) ? $CMD_LIST = $_REQUEST['CMD_LIST'] : $CMD_LIST = null;
-        $CommandeManager->updateDeliveryCalendar($LG_LIVID, $STR_LIVNAME, $DT_LIVBEGIN, $DT_LIVEND, $LG_LSTID, $CMD_LIST, $OUtilisateur);
-    } else if ($mode == "deleteDeliveryCalendar") {
-        $result = $CommandeManager->deleteDeliveryCalendar($LIST_LG_LIVID);
-        $arrayJson["total"] = $result['total'];
-    } else if ($mode == "closeDeliveryCalendar") {
-        $CommandeManager->closeDeliveryCalendar($LG_LIVID);
-    } else if ($mode == "createDeliveryDetails") {
-        isset($_REQUEST['CMD_LIST']) ? $CMD_LIST = $_REQUEST['CMD_LIST'] : $CMD_LIST = null;
-        $CommandeManager->createDeliveryDetails($LG_LIVID, $CMD_LIST, $OUtilisateur);
-    } else if ($mode == "deleteDeleveryDetails") {
-        $CommandeManager->deleteDeleveryDetails($LG_LIVID);
-    } else if ($mode == "getCalendarFrontOfiice") {
-        $arrayJson = $CommandeManager->getCalendarFrontOfiice();
-    } else if ($mode == "listClientCommande") {
-        $arrayJsonChildren = $CommandeManager->getLastCommandeByAgence($LG_AGEID, Parameters::$statut_closed, $SEVERAL = true);
-        foreach ($arrayJsonChildren as $key => $item) {
-            $arrayJson["pieces"][] = [
-                "PcvID" => $item['lg_commid'],
-                "PcvDate" => $item['dt_commcreated'],
-                "PcvMtHT" => (float)$item['dbl_commmtht'],
-                "PcvMtTTC" => (float)$item['dbl_commmtttc'],
-                "etat" => $item['str_commstatut'],
-            ];
-        }
-        $value = $CommandeManager->getLastCommandeByAgence($LG_AGEID, Parameters::$statut_waiting);
-
-        foreach ($value as $item) {
-            $arrayJson["pieces"][] = [
-                "PcvID" => $item['lg_commid'],
-                "PcvDate" => $item['dt_commcreated'],
-                "PcvMtHT" => (float)$item['dbl_commmtht'],
-                "PcvMtTTC" => (float)$item['dbl_commmtttc'],
-                "etat" => $item['str_commstatut'],
-            ];
-        }
-    } else if ($mode == "listProductByCommande") {
-        $rootFolderRelative = __DIR__ . "/../images/";
-        $arrayJsonChildren = $CommandeManager->listProductByCommande($LG_COMMID);
-        foreach ($arrayJsonChildren as $item) {
-            $arrayJson['products'][] = [
-                "LG_CPRID" => $item['lg_cprid'],
-                "ArtID" => $item['lg_proid'],
-                "ArtCode" => $item["str_proname"],
-                "ArtLib" => $item['str_prodescription'],
-                "ArtPrixBase" => $item['int_propricevente'],
-                "int_cprquantity" => $item['int_cprquantity'],
-                "ArtCateg" => $item['str_procateg'],
-                "ArtFamille" => $item['str_profamille'],
-                "ArtGamme" => $item['str_progamme'],
-                "ArtSpecies" => $item['str_proespece'],
-                "ArtGPicID" => $item['str_propic'] != null ? Parameters::$rootFolderRelative . "produits/" . $item["lg_proid"] . "/" . $item['str_propic'] : ""
-            ];
-        }
-    } else if ($mode === "listOrdersIn") {
-        $result = $CommandeManager->showAllOrOneOrderOrInvoice($FILTER_OPTIONS, $LIMIT, $PAGE, "stat_devis");
-        $arrayJson["data"] = $result['data'];
-        $arrayJson["total"] = $result['total'];
-        $arrayJson["limit"] = (int)$LIMIT;
-        $arrayJson["page"] = (int)$PAGE;
-    } else if ($mode === "listInvoices") {
-        $result = $CommandeManager->showAllOrOneOrderOrInvoice($FILTER_OPTIONS, $LIMIT, $PAGE, "stat_facture");
-        $arrayJson["data"] = $result['data'];
-        $arrayJson["total"] = $result['total'];
-        $arrayJson["limit"] = (int)$LIMIT;
-        $arrayJson["page"] = (int)$PAGE;
-    }else if ($mode == "getClientCalendar") { // Correction ici : utilisation de "==" au lieu de "="
-    $arrayJsonChildren = $CommandeManager->getClientCalendar($LG_AGEID); // On suppose que $LG_AGEID est bien défini
-    $tabsData = [];
-    $listsData = [];
-
-    foreach ($arrayJsonChildren as $row) {
-        // Vérification de l'existence des indices avant leur utilisation
-        if (isset($row['str_lstvalue'])) {
-            $tabId = 'product-tab-' . strtolower(str_replace(' ', '-', $row['str_lstvalue']));
-
-            if (!isset($tabsData[$tabId])) {
-                $tabsData[$tabId] = [
-                    'id' => $tabId,
-                    'title' => ucfirst(strtolower($row['str_lstvalue'])),
+        } else if ($mode == "deleteDeleveryDetails") {
+            $CommandeManager->deleteDeleveryDetails($LG_LIVID);
+        } else if ($mode == "getCalendarFrontOfiice") {
+            $arrayJson = $CommandeManager->getCalendarFrontOfiice();
+        } else if ($mode == "listClientCommande") {
+            $arrayJsonChildren = $CommandeManager->getLastCommandeByAgence($LG_AGEID, Parameters::$statut_closed, $SEVERAL = true);
+            foreach ($arrayJsonChildren as $key => $item) {
+                $arrayJson["pieces"][] = [
+                    "PcvID" => $item['lg_commid'],
+                    "PcvDate" => $item['dt_commcreated'],
+                    "PcvMtHT" => (float) $item['dbl_commmtht'],
+                    "PcvMtTTC" => (float) $item['dbl_commmtttc'],
+                    "etat" => $item['str_commstatut'],
                 ];
             }
+            $value = $CommandeManager->getLastCommandeByAgence($LG_AGEID, Parameters::$statut_waiting);
 
-            if (!isset($listsData[$tabId])) {
-                $listsData[$tabId] = [];
-            }
-
-            // Vérification de l'existence des autres indices utilisés
-            if (isset($row['lg_livid'], $row['dt_livbegin'], $row['dt_livend'], $row['str_lstdescription'])) {
-                $listsData[$tabId][] = [
-                    'id' => $row['lg_livid'],
-                    'date' => date('d/m H:i', strtotime($row['dt_livbegin'])),
-                    'deliveryDate' => date('d/m', strtotime($row['dt_livend'])),
-                    'areas' => $row['str_lstdescription'], // Zone géographique
+            foreach ($value as $item) {
+                $arrayJson["pieces"][] = [
+                    "PcvID" => $item['lg_commid'],
+                    "PcvDate" => $item['dt_commcreated'],
+                    "PcvMtHT" => (float) $item['dbl_commmtht'],
+                    "PcvMtTTC" => (float) $item['dbl_commmtttc'],
+                    "etat" => $item['str_commstatut'],
                 ];
             }
+        } else if ($mode == "listProductByCommande") {
+            $rootFolderRelative = __DIR__ . "/../images/";
+            $arrayJsonChildren = $CommandeManager->listProductByCommande($LG_COMMID);
+            foreach ($arrayJsonChildren as $item) {
+                $arrayJson['products'][] = [
+                    "LG_CPRID" => $item['lg_cprid'],
+                    "ArtID" => $item['lg_proid'],
+                    "ArtCode" => $item["str_proname"],
+                    "ArtLib" => $item['str_prodescription'],
+                    "ArtPrixBase" => $item['int_propricevente'],
+                    "int_cprquantity" => $item['int_cprquantity'],
+                    "ArtCateg" => $item['str_procateg'],
+                    "ArtFamille" => $item['str_profamille'],
+                    "ArtGamme" => $item['str_progamme'],
+                    "ArtSpecies" => $item['str_proespece'],
+                    "ArtGPicID" => $item['str_propic'] != null ? Parameters::$rootFolderRelative . "produits/" . $item["lg_proid"] . "/" . $item['str_propic'] : ""
+                ];
+            }
+        } else if ($mode === "listOrdersIn") {
+            $result = $CommandeManager->showAllOrOneOrderOrInvoice($FILTER_OPTIONS, $LIMIT, $PAGE, "stat_devis");
+            $arrayJson["data"] = $result['data'];
+            $arrayJson["total"] = $result['total'];
+            $arrayJson["limit"] = (int) $LIMIT;
+            $arrayJson["page"] = (int) $PAGE;
+        } else if ($mode === "listInvoices") {
+            $result = $CommandeManager->showAllOrOneOrderOrInvoice($FILTER_OPTIONS, $LIMIT, $PAGE, "stat_facture");
+            $arrayJson["data"] = $result['data'];
+            $arrayJson["total"] = $result['total'];
+            $arrayJson["limit"] = (int) $LIMIT;
+            $arrayJson["page"] = (int) $PAGE;
+        } else if ($mode == "getClientCalendar") { // Correction ici : utilisation de "==" au lieu de "="
+            $arrayJsonChildren = $CommandeManager->getClientCalendar($LG_AGEID); // On suppose que $LG_AGEID est bien défini
+            $tabsData = [];
+            $listsData = [];
+
+            foreach ($arrayJsonChildren as $row) {
+                // Vérification de l'existence des indices avant leur utilisation
+                if (isset($row['str_lstvalue'])) {
+                    $tabId = 'product-tab-' . strtolower(str_replace(' ', '-', $row['str_lstvalue']));
+
+                    if (!isset($tabsData[$tabId])) {
+                        $tabsData[$tabId] = [
+                            'id' => $tabId,
+                            'title' => ucfirst(strtolower($row['str_lstvalue'])),
+                        ];
+                    }
+
+                    if (!isset($listsData[$tabId])) {
+                        $listsData[$tabId] = [];
+                    }
+
+                    // Vérification de l'existence des autres indices utilisés
+                    if (isset($row['lg_livid'], $row['dt_livbegin'], $row['dt_livend'], $row['str_lstdescription'])) {
+                        $listsData[$tabId][] = [
+                            'id' => $row['lg_livid'],
+                            'date' => date('d/m H:i', strtotime($row['dt_livbegin'])),
+                            'deliveryDate' => date('d/m', strtotime($row['dt_livend'])),
+                            'areas' => $row['str_lstdescription'], // Zone géographique
+                        ];
+                    }
+                }
+            }
+
+            // Conversion en tableau indexé pour tabsData
+            $tabsData = array_values($tabsData);
+
+            // Ajout des données au tableau JSON
+            $arrayJson["data"] = ["tabsData" => $tabsData, "listsData" => $listsData];
+
+            // Initialisation de $arrayJson["code_statut"] et $arrayJson["desc_statut"]
+            $arrayJson["code_statut"] = Parameters::$Message ?? "Code statut non défini"; // Valeur par défaut
+            $arrayJson["desc_statut"] = Parameters::$Detailmessage ?? "Message non défini";
         }
-    }
-
-    // Conversion en tableau indexé pour tabsData
-    $tabsData = array_values($tabsData);
-
-    // Ajout des données au tableau JSON
-    $arrayJson["data"] = ["tabsData" => $tabsData, "listsData" => $listsData];
-
-    // Initialisation de $arrayJson["code_statut"] et $arrayJson["desc_statut"]
-    $arrayJson["code_statut"] = Parameters::$Message ?? "Code statut non défini"; // Valeur par défaut
-    $arrayJson["desc_statut"] = Parameters::$Detailmessage ?? "Message non défini";
-}
 
 // Conversion en JSON et affichage
-echo json_encode($arrayJson);
- }
+        echo json_encode($arrayJson);
+    }
 }
