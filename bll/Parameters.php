@@ -96,6 +96,9 @@ class Parameters
 
     public static $LAST_BACKUP_DATE = "LAST_BACKUP_DATE";
     public static $typelisteValue = array("7", "4");
+    
+    public static $listeValue = array("MSG_RESETPASS", "4");
+    public static $listParameters = array("[P1]", "[P2]", "[P3]", "[P4]", "[P5]", "{MSG}");
 
     public static function buildErrorMessage($description)
     {

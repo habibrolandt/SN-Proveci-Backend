@@ -47,7 +47,7 @@ interface CommandeInterface {
 
     public function getClientPlafond($LG_CLIID, $token = null);
 
-    public function getExternalClientPanier($LG_CLIID, $LG_COMMID, $token = null);
+    public function getExternalClientPanier($LG_CLIID, $LG_COMMID = null, $token = null);
 
     public function updateCommande($LG_COMMID, $DBL_COMMMTHT, $DBL_COMMMTTTC);
 
@@ -100,11 +100,20 @@ interface CommandeInterface {
     public function showAllOrOneInvoiceProducts($LG_CLIID, $LG_COMMID, $token = null);
 
     public function showAllOrders($params_conditions);
+<<<<<<< HEAD
+    
+    public function showAllOrOneLivraison($search_value, $LG_LSTID);
+    public function showAllOrOneZonelivraisonActive();
+    
+=======
 
     //gestion des livraisons
     public function showAllOrOneLivraison($search_value, $LG_LSTID);
 
     public function showAllOrOneZonelivraisonActive();
+
+    public function totalOrder($LG_CLIID);
+>>>>>>> 4e428fc (modif)
 }
 
 class CommandeManager implements CommandeInterface {
@@ -246,18 +255,34 @@ class CommandeManager implements CommandeInterface {
     }
 
     public function getLastCommandeByAgence($LG_AGEID, $STR_COMMSTATUT, $SEVERAL = false) {
+        /* $arraySql = array();
+          try {
+          $query = "
+          SELECT t.*, s.lg_socextid, s.lg_socid, s.dbl_socplafond, l.str_lstvalue
+          FROM commande t
+          JOIN agence a ON t.lg_ageid = a.lg_ageid
+          JOIN societe s ON a.lg_socid = s.lg_socid
+          JOIN liste l ON s.lg_lstpayid = l.lg_lstid
+          WHERE t.lg_ageid = :LG_AGEID
+          AND t.str_commstatut = :STR_STATUT
+          ORDER BY t.dt_commupdated " . (!$SEVERAL ? "DESC LIMIT " . Parameters::$PROCESS_SUCCESS : "") . ";
+          ";
+          $res = $this->dbconnexion->prepare($query);
+          //exécution de la requête
+          $res->execute(array("LG_AGEID" => $LG_AGEID, "STR_STATUT" => $STR_COMMSTATUT));
+          while ($rowObj = $res->fetch()) {
+          $arraySql[] = $rowObj;
+          }
+          $res->closeCursor();
+          } catch (Exception $exc) {
+          echo $exc->getTraceAsString();
+          }
+          return $arraySql; */
+
+
         $arraySql = array();
         try {
-            $query = "
-                SELECT t.*, s.lg_socextid, s.lg_socid, s.dbl_socplafond, l.str_lstvalue 
-                FROM commande t
-                JOIN agence a ON t.lg_ageid = a.lg_ageid
-                JOIN societe s ON a.lg_socid = s.lg_socid
-                JOIN liste l ON s.lg_lstpayid = l.lg_lstid
-                WHERE t.lg_ageid = :LG_AGEID 
-                AND t.str_commstatut = :STR_STATUT 
-                ORDER BY t.dt_commupdated " . (!$SEVERAL ? "DESC LIMIT " . Parameters::$PROCESS_SUCCESS : "") . ";
-            ";
+            $query = "SELECT t.*, s.lg_socextid FROM " . $this->Commande . " t, " . $this->Agence . " a, " . $this->Societe . " s WHERE t.lg_ageid = a.lg_ageid and a.lg_socid = s.lg_socid and t.lg_ageid = :LG_AGEID and t.str_commstatut = :STR_STATUT";
             $res = $this->dbconnexion->prepare($query);
             //exécution de la requête
             $res->execute(array("LG_AGEID" => $LG_AGEID, "STR_STATUT" => $STR_COMMSTATUT));
@@ -266,7 +291,7 @@ class CommandeManager implements CommandeInterface {
             }
             $res->closeCursor();
         } catch (Exception $exc) {
-            echo $exc->getTraceAsString();
+            $exc->getTraceAsString();
         }
         return $arraySql;
     }
@@ -364,7 +389,7 @@ class CommandeManager implements CommandeInterface {
         
     }
 
-    public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur, $token) {
+public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROID, $INT_CPRQUANTITY, $OUtilisateur, $token) {
         $validation = "";
         $LG_CPRID = "";
         $StockManager = new StockManager();
@@ -451,13 +476,13 @@ class CommandeManager implements CommandeInterface {
         return $validation;
     }
 
+
     public function createOrderProduitExternal($LG_COMMID, $LG_CLIID, $LG_PROID, $INT_CPRQUANTITY, $token) {
         $validation = "";
-
         try {
             // URL de l'API
             $url = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/carts/" . $LG_COMMID . "/lines";
-
+//            var_dump($url);
             // Headers de la requête
             $headers = array(
                 'Accept: application/json',
@@ -472,62 +497,40 @@ class CommandeManager implements CommandeInterface {
                 "qty" => $INT_CPRQUANTITY
             );
 
-            // Log des données envoyées
-            error_log("Données envoyées à l'API : " . json_encode($data));
-
             // Initialisation de cURL
             $ch = curl_init();
+
+            // Configuration de cURL
             curl_setopt($ch, CURLOPT_URL, $url);
             curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($data));
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-            // Exécution de la requête
+// Exécution de la requête
             $response = curl_exec($ch);
 
-            // Vérification des erreurs cURL
+// Vérification des erreurs
             if (curl_errno($ch)) {
-                error_log("Erreur cURL : " . curl_error($ch));
-                curl_close($ch);
-                return false;
+                echo 'Erreur cURL : ' . curl_error($ch);
             }
 
+// Fermeture de la session cURL
             curl_close($ch);
 
-            // Log de la réponse brute API
-            error_log("Réponse brute API : " . $response);
-
-            // Vérification de la réponse API
-            if (!$response || empty($response)) {
-                error_log("Erreur : réponse API vide.");
-                return false;
-            }
-
-            // Conversion JSON
+//            echo $response;
+            // Convertir le JSON en objet PHP
             $obj = json_decode($response);
-
-            // Vérification du décodage JSON
+//            var_dump($obj);
+            // Vérifier si la conversion a réussi
             if ($obj === null && json_last_error() !== JSON_ERROR_NONE) {
-                error_log("Erreur JSON : " . json_last_error_msg());
-                return false;
+                die('Erreur lors du décodage JSON');
             }
 
-            // Log de la réponse JSON décodée
-            error_log("Réponse JSON décodée : " . json_encode($obj));
-
-            // Vérification et retour de PlvID
-            if (!isset($obj->PlvID) || empty($obj->PlvID)) {
-                error_log("Erreur API : PlvID introuvable ou vide. Réponse complète : " . json_encode($obj));
-                return false;
-            }
-
-            $validation = $obj->PlvID;
+            $validation = $obj->PlvID != null ? $obj->PlvID : "";
         } catch (Exception $exc) {
-            error_log("Exception : " . $exc->getMessage());
-            return false;
+            echo $exc->getTraceAsString();
         }
-
         return $validation;
     }
 
@@ -586,89 +589,47 @@ class CommandeManager implements CommandeInterface {
     public function updateCommandeProduit($LG_CPRID, $INT_CPRQUANTITY, $OUtilisateur, $token) {
         $validation = [];
         $ArtStk = 0;
-        $OProduit = [];
+        $OProduit = array();
         $StockManager = new StockManager();
-
         try {
-            $this->OCommproduit = $this->getCommandeProduitLight($LG_CPRID);
-
-            // Vérification de l'existence de la commande et du produit
-            if (empty($this->OCommproduit) || !isset($this->OCommproduit[0]['lg_proid'])) {
-                Parameters::buildErrorMessage("Référence commande invalide ou produit inexistant.");
+            $this->OCommproduit = $this->getCommandeProduitLight($LG_CPRID); //
+            if ($this->OCommproduit == null) {
+                Parameters::buildErrorMessage("Echec de mise à jour du produit. Référence inexistante sur la commande");
                 return false;
             }
+            $OProduit = $StockManager->getProductRemote($this->OCommproduit[0]['lg_proid'], $token)->products;
 
-            // Récupération des informations produit
-            $OProduitRemote = $StockManager->getProductRemote($this->OCommproduit[0]['lg_proid'], $token);
-
-            // Vérification de l'existence et de la structure correcte des produits
-            if (!isset($OProduitRemote->products) || !is_array($OProduitRemote->products) || empty($OProduitRemote->products)) {
-                Parameters::buildErrorMessage("Produit introuvable ou structure incorrecte.");
-                return false;
-            }
-            $OProduit = $OProduitRemote->products[0];
-
-            // Vérification de ArtStk avant conversion
-            $ArtStk = (!empty($OProduit->ArtStk) && is_numeric($OProduit->ArtStk)) ? (float) $OProduit->ArtStk : 0;
-
-            // Vérification du stock disponible
+            $ArtStk = $OProduit != null ? (float) $OProduit[0]->ArtStk : $ArtStk;
             if ($INT_CPRQUANTITY > $ArtStk) {
-                Parameters::buildErrorMessage("Échec de mise à jour de la quantité. La quantité voulue dépasse le stock disponible.");
+                Parameters::buildErrorMessage("Echec de mise à de la quantité du produit. La quantité voulue dépasse le stock");
                 return false;
             }
 
-            // Mise à jour externe
-            if ($this->updateOrderProduitExternal(
-                            $LG_CPRID,
-                            $this->OCommproduit[0]["lg_commid"],
-                            $this->OCommproduit[0]["lg_socextid"],
-                            $INT_CPRQUANTITY,
-                            $token) == "") {
-                Parameters::buildErrorMessage("Échec de mise à jour de la quantité du produit. Veuillez réessayer !");
+            if ($this->updateOrderProduitExternal($LG_CPRID, $this->OCommproduit[0]["lg_commid"], $this->OCommproduit[0]["lg_socextid"], $INT_CPRQUANTITY, $token) == "") {
+                Parameters::buildErrorMessage("Echec de mise à de la quantité du produit. Veuillez réessayer svp!");
                 return false;
             }
 
-            // Mise à jour en base de données
-            $params_condition = ["lg_cprid" => $this->OCommproduit[0]["lg_cprid"]];
-            $params_to_update = [
-                "int_cprquantity" => $INT_CPRQUANTITY,
-                "dt_cprupdated" => get_now(),
-                "lg_utiupdateid" => isset($OUtilisateur[0][0]) ? $OUtilisateur[0][0] : null
-            ];
+            $params_condition = array("lg_cprid" => $this->OCommproduit[0][0]);
+            $params_to_update = array("int_cprquantity" => $INT_CPRQUANTITY, "dt_cprupdated" => get_now(), "lg_utiupdateid" => $OUtilisateur[0][0]);
 
             if ($this->dbconnexion != null) {
                 if (Merge($this->Commproduit, $params_to_update, $params_condition, $this->dbconnexion)) {
                     $validation["lg_cprid"] = $this->OCommproduit[0]["lg_cprid"];
+                    $PanierClient = $this->getExternalClientPanier($this->OCommproduit[0]["lg_ageid"], $this->OCommproduit[0]["lg_commid"], $token);
 
-                    $PanierClient = $this->getExternalClientPanier(
-                            $this->OCommproduit[0]["lg_ageid"],
-                            $this->OCommproduit[0]["lg_commid"],
-                            $token
-                    );
+                    $validation = array_merge($validation, ["PcvMtHT" => $PanierClient->pieces[0]->PcvMtHT, "PcvMtTTC" => $PanierClient->pieces[0]->PcvMtTTC]);
 
-                    if (isset($PanierClient->pieces[0])) {
-                        $validation = array_merge($validation, [
-                            "PcvMtHT" => $PanierClient->pieces[0]->PcvMtHT ?? 0,
-                            "PcvMtTTC" => $PanierClient->pieces[0]->PcvMtTTC ?? 0
-                        ]);
-
-                        $this->updateCommande(
-                                $this->OCommproduit[0]["lg_commid"],
-                                $PanierClient->pieces[0]->PcvMtHT,
-                                $PanierClient->pieces[0]->PcvMtTTC
-                        );
-                    }
-
-                    Parameters::buildSuccessMessage("Mise à jour réussie !");
+                    $this->updateCommande($this->OCommproduit[0]["lg_commid"], $PanierClient->pieces[0]->PcvMtHT, $PanierClient->pieces[0]->PcvMtTTC);
+                    Parameters::buildSuccessMessage("Mise à jour avec succès");
                 } else {
-                    Parameters::buildErrorMessage("Échec de mise à jour du produit.");
+                    Parameters::buildErrorMessage("Echec de mise à jour du produit");
                 }
             }
         } catch (Exception $exc) {
-            error_log($exc->getMessage()); // Remplace echo par un log
-            Parameters::buildErrorMessage("Échec de mise à jour du produit. Veuillez contacter votre administrateur.");
+            echo $exc->getTraceAsString();
+            Parameters::buildErrorMessage("Echec de mise à jour du produit. Veuillez contacter votre administrateur");
         }
-
         return $validation;
     }
 
@@ -735,11 +696,10 @@ class CommandeManager implements CommandeInterface {
         try {
             $this->OCommproduit = $this->getCommandeProduitLight($LG_CPRID);
 //            var_dump($this->OCommproduit);
-            if ($this->OCommproduit == null || !isset($this->OCommproduit[0]['lg_proid'])) {
-                Parameters::buildErrorMessage("Référence commande invalide ou produit inexistant.");
+            if ($this->OCommproduit == null) {
+                Parameters::buildErrorMessage("Echec de suppression du produit. Référence inexistante sur la commande");
                 return false;
             }
-
             $this->deleteOrderProduitExternal($this->OCommproduit[0][0], $this->OCommproduit[0]["lg_commid"], $this->OCommproduit[0]["lg_socextid"], $token);
 
             //Mise à jour de la commande chez nous
@@ -890,6 +850,7 @@ class CommandeManager implements CommandeInterface {
     }
 
     public function showAllCommandeproduit($FILTERS_OPTIONS, $LIMIT, $PAGE, $ORDER_NOT_ON_LIVRAISON = false) {
+            $params = $_REQUEST['params'] ?? [];
         $arraySql = array();
         $WHERE = [];
         $select = "soc.*, age.*, com.*, det.*, com.lg_commid";
@@ -964,6 +925,7 @@ class CommandeManager implements CommandeInterface {
             $res = $this->dbconnexion->prepare($query);
             $res->execute($params);
             $arraySql = $res->fetchAll(PDO::FETCH_ASSOC);
+
 
             $newSelect = "COUNT(*) count";
             $queryCount = str_replace($select, $newSelect, $query);
@@ -1054,7 +1016,7 @@ class CommandeManager implements CommandeInterface {
             $LG_CLIID = $this->OCommande[0]["lg_socextid"];
             $mTTC = $this->getClientPanier($LG_AGEID)['dbl_commmtttc'];
             $encours = $this->getClientSolde($LG_CLIID)->clisolde;
-            $plafond = $this->OCommande[0]["dbl_socplafond"];
+            $plafond = isset($this->OCommande[0]["dbl_socplafond"])? $this->OCommande[0]["dbl_socplafond"] : 0;
 
             if ($mTTC == null) {
                 Parameters::buildErrorMessage("Echec de validation de la commande. Veuillez ajouter des produits à la commande");
@@ -1066,7 +1028,7 @@ class CommandeManager implements CommandeInterface {
                 if ($this->dbconnexion != null) {
                     if (Merge($this->Commande, $params_to_update, $params_condition, $this->dbconnexion)) {
                         $validation = true;
-                        Parameters::buildSuccessMessage("Commande prise en charge. Veuillez nous contactez pour la gestion du payement.");
+                        //Parameters::buildSuccessMessage("Commande prise en charge. Veuillez nous contactez pour la gestion du payement.");
                     } else {
                         Parameters::buildErrorMessage("Echec de l'opération");
                     }
@@ -1080,6 +1042,7 @@ class CommandeManager implements CommandeInterface {
 
                 $params_condition = array("lg_commid" => $this->OCommande[0][0]);
                 $params_to_update = array("str_commstatut" => Parameters::$statut_closed, "dt_commupdated" => get_now(), "lg_lstid" => $list[0]['lg_lstid'], "lg_utiupdatedid" => $OUtilisateur[0]["lg_utiid"] ?: 1, "str_commlivadresse" => $STR_COMMLIVADRESSE, "PcvIDExt" => $res->PcvID);
+
 
                 if ($this->dbconnexion != null) {
                     if (Merge($this->Commande, $params_to_update, $params_condition, $this->dbconnexion)) {
@@ -1112,6 +1075,7 @@ class CommandeManager implements CommandeInterface {
                 return false;
             }
             $LG_CLIID = $this->OCommande["lg_socextid"];
+
 
             $res = $this->ExternalValidationCart($token, $LG_CLIID, $this->OCommande["str_pays"], $STR_COMMLIVADRESSE, $this->OCommande["lg_commid"]);
             if (property_exists($res, "error")) {
@@ -1231,22 +1195,23 @@ class CommandeManager implements CommandeInterface {
         return $arraySql;
     }
 
-    public function getExternalClientPanier($LG_CLIID, $LG_COMMID, $token = null) {
+    public function getExternalClientPanier($LG_CLIID, $LG_COMMID = null, $token = null) {
         $ConfigurationManager = new ConfigurationManager();
         $arraySql = array();
         try {
-//            $value = $this->getLastCommandeByAgence($LG_CLIID, Parameters::$statut_process);
-//            if ($value == null) {
-//                Parameters::buildErrorMessage("Le client n'a pas de panier en cours");
-//                return ["erreur" => "Le client n'as pas de panier en cours"];
-//            }
-            $value = $this->getCommandeLight($LG_COMMID);
+            $value = $this->getLastCommandeByAgence($LG_CLIID, Parameters::$statut_process);
             if ($value == null) {
                 Parameters::buildErrorMessage("Le client n'a pas de panier en cours");
                 return ["erreur" => "Le client n'as pas de panier en cours"];
             }
 
-            $LG_CLIID = $value['lg_socextid'];
+            /* $value = $this->getCommandeLight($LG_COMMID); //a decommenter en cas de probleme
+              if ($value == null) {
+              Parameters::buildErrorMessage("Le client n'a pas de panier en cours");
+              return ["erreur" => "Le client n'as pas de panier en cours"];
+              } */
+
+            $LG_CLIID = $value[0]['lg_socextid'];
             $url = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/carts/" . $LG_COMMID;
 
             $token = $token ?: $ConfigurationManager->generateToken();
@@ -1268,6 +1233,7 @@ class CommandeManager implements CommandeInterface {
 
 // Exécution de la requête
             $response = curl_exec($ch);
+
 
 // Vérification des erreurs
             if (curl_errno($ch)) {
@@ -1299,6 +1265,7 @@ class CommandeManager implements CommandeInterface {
         try {
             $params_condition = array("lg_commid" => $LG_COMMID);
             $params_to_update = array("dbl_commmtttc" => $DBL_COMMMTTTC, "dbl_commmtht" => $DBL_COMMMTHT, "dt_commupdated" => get_now());
+
 
             if ($this->dbconnexion != null) {
                 if (Merge($this->Commande, $params_to_update, $params_condition, $this->dbconnexion)) {
@@ -1649,6 +1616,7 @@ class CommandeManager implements CommandeInterface {
             $res->execute($params);
             $arraySql = $res->fetchAll(PDO::FETCH_ASSOC);
 
+
             $newSelect = "COUNT(DISTINCT lst.str_lstvalue) count";
             $queryCount = str_replace($select, $newSelect, $query);
             $queryCount = str_replace("LIMIT $LIMIT OFFSET " . ($PAGE - 1) * $LIMIT, "", $queryCount);
@@ -1817,6 +1785,14 @@ class CommandeManager implements CommandeInterface {
         return $validation;
     }
 
+<<<<<<< HEAD
+
+    public function getCalendarFrontOfiice()
+{
+    $arraySql = [];
+    $array_place = [];
+    $array_delivery = [];
+=======
     public function getCalendarFrontOfiice() {
         $arraySql = array();
         $array_place = array();
@@ -1824,42 +1800,70 @@ class CommandeManager implements CommandeInterface {
         try {
             $deliveryPlace = $this->getDeliveryPlace([], 99999, 1);
             $calendar = $this->showAllOrOneDeliveryCalendar([], 99999, 1);
+>>>>>>> 4e428fc (modif)
 
-            foreach ($deliveryPlace as $place) {
-                foreach ($calendar as $cal) {
-                    if ($place['lg_lstid'] == $cal['zone_id']) {
-                        $cal['zone'] = $place['str_lstdescription'];
-                        $array_delivery[$place['str_lstdescription']] = [
-                            "lg_callivid" => $cal["lg_callivid"],
-                            "date" => $cal["dt_callivbegin"],
-                            "deliveryDate" => $cal["dt_callivend"],
-                        ];
-                    }
-                }
+    try {
+        // Récupération des données
+        $deliveryPlace = $this->getDeliveryPlace([], 99999, 1);
+        $calendar = $this->showAllOrOneDeliveryCalendar([], 99999, 1);
+
+        // Vérification que $deliveryPlace et $calendar sont des tableaux
+        if (!is_array($deliveryPlace) || !is_array($calendar)) {
+            throw new Exception("Les données reçues ne sont pas valides.");
+        }
+
+        // Traitement des données pour $array_delivery
+        foreach ($deliveryPlace as $place) {
+            if (!isset($place['lg_lstid'], $place['str_lstdescription'])) {
+                continue; // Ignorer si les clés nécessaires sont absentes
             }
 
+            foreach ($calendar as $cal) {
+                if (!isset($cal['zone_id'], $cal['lg_callivid'], $cal['dt_callivbegin'], $cal['dt_callivend'])) {
+                    continue; // Ignorer si les clés nécessaires sont absentes
+                }
 
-            foreach ($deliveryPlace as $place) {
+                if ($place['lg_lstid'] == $cal['zone_id']) {
+                    $cal['zone'] = $place['str_lstdescription'];
+                    $array_delivery[$place['str_lstdescription']] = [
+                        "lg_callivid" => $cal["lg_callivid"],
+                        "date" => $cal["dt_callivbegin"],
+                        "deliveryDate" => $cal["dt_callivend"],
+                    ];
+                }
+            }
+        }
+
+        // Traitement des données pour $array_place
+        foreach ($deliveryPlace as $place) {
+            if (isset($place['lg_lstid'], $place['str_lstdescription'])) {
                 $array_place[] = [
                     "lg_lstid" => $place['lg_lstid'],
                     "str_lstdescription" => $place['str_lstdescription'],
                 ];
             }
-
-            $arraySql[] = $array_delivery;
-            $arraySql[] = $array_place;
-//            foreach ($calendar as $cal) {
-//                $cal['zone'] = $deliveryPlace[array_search($cal['zone_id'], array_column($deliveryPlace, 'lg_lstid'))]['str_lstdescription'];
-//                $arraySql[] = $cal;
-//            }
-        } catch (Exception $exc) {
-            var_dump($exc->getTraceAsString());
-            Parameters::buildErrorMessage("Echec de la recuperation du calendrier de livraison");
         }
-        return $arraySql;
+
+        // Constitution du résultat final
+        $arraySql[] = $array_delivery;
+        $arraySql[] = $array_place;
+
+    } catch (Exception $exc) {
+        // Gestion des exceptions
+        var_dump($exc->getMessage());
+        Parameters::buildErrorMessage("Échec de la récupération du calendrier de livraison");
     }
 
+<<<<<<< HEAD
+    return $arraySql;
+}
+
+
+    public function listClientCommande($token = null, $LG_SOCID, $LG_AGEID)
+    {
+=======
     public function listClientCommande($token = null, $LG_SOCID, $LG_AGEID) {
+>>>>>>> 4e428fc (modif)
         $ConfigurationManager = new ConfigurationManager();
         $arraySql = array();
         try {
@@ -1888,6 +1892,7 @@ class CommandeManager implements CommandeInterface {
 
             // Exécution de la requête
             $response = curl_exec($ch);
+
 
             // Vérification des erreurs
             if (curl_errno($ch)) {
@@ -1936,6 +1941,17 @@ class CommandeManager implements CommandeInterface {
         return $arraySql;
     }
 
+<<<<<<< HEAD
+    public function getClientCalendar($LG_AGEID = null)
+{
+    $arraySql = array();
+    $params = array();
+    Parameters::buildSuccessMessage("Calendrier de livraison récupéré avec succès");
+
+    try {
+        $query = "
+            SELECT lst.str_lstvalue, lst.str_lstdescription, l.dt_livbegin, l.dt_livend, l.lg_livid
+=======
     public function getClientCalendar($LG_AGEID = null) {
         $arraySql = array();
         $params = array();
@@ -1943,35 +1959,54 @@ class CommandeManager implements CommandeInterface {
         try {
             $query = "
                     SELECT lst.str_lstvalue, lst.str_lstdescription, l.dt_livbegin, l.dt_livend, l.lg_livid
+>>>>>>> 4e428fc (modif)
             FROM livraison l 
             INNER JOIN liv_commande lc ON l.lg_livid = lc.lg_livid 
             INNER JOIN commande c ON lc.lg_commid = c.lg_commid 
             INNER JOIN liste lst ON l.lg_lstid = lst.lg_lstid
+<<<<<<< HEAD
+            " . ($LG_AGEID !== null ? "WHERE c.lg_ageid = :LG_AGEID" : "") . "
+            GROUP BY l.lg_livid 
+            ORDER BY l.dt_livbegin ASC 
+        ";
+=======
             " . ($LG_AGEID != null ? "WHERE c.lg_ageid = :LG_AGEID" : "") . "
-            GROUP BY l.lg_livid ORDER BY l.dt_livbegin ASC ";
+            GROUP BY l.lg_livid
+            ";
+>>>>>>> 4e428fc (modif)
 
-            if ($this->dbconnexion) {
-                if ($LG_AGEID != null) {
-                    $params = array("LG_AGEID" => $LG_AGEID);
-                }
-                $stmt = $this->dbconnexion->prepare($query);
-                $stmt->execute($params);
-                $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
-                if (!is_array($results)) {
-                    Parameters::buildErrorMessage("Aucun calendrier de livraison trouvé");
-                    return [];
-                }
-                $arraySql = $results;
-                $stmt->closeCursor();
+        if ($this->dbconnexion) {
+            if ($LG_AGEID !== null) {
+                $params = array("LG_AGEID" => $LG_AGEID);
             }
-        } catch (Exception $exc) {
-            error_log($exc->getTraceAsString());
-            Parameters::buildErrorMessage("Impossible de récupérer le planning de livraison, veuillez contacter votre administrateur.");
+
+            $stmt = $this->dbconnexion->prepare($query);
+            $stmt->execute($params);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            if (!is_array($results) || empty($results)) {
+                Parameters::buildErrorMessage("Aucun calendrier de livraison trouvé");
+                return [];
+            }
+
+            $arraySql = $results;
+            $stmt->closeCursor();
         }
-        return $arraySql;
+    } catch (Exception $exc) {
+        error_log($exc->getMessage());
+        Parameters::buildErrorMessage("Impossible de récupérer le planning de livraison, veuillez contacter votre administrateur.");
     }
 
+<<<<<<< HEAD
+    return $arraySql;
+}
+
+
+    public function showAllOrOneOrderOrInvoice($FILTER_OPTIONS, $LIMIT, $PAGE, $TABLE): array
+    {
+=======
     public function showAllOrOneOrderOrInvoice($FILTER_OPTIONS, $LIMIT, $PAGE, $TABLE): array {
+>>>>>>> 4e428fc (modif)
         $arraySql = array();
         $WHERE = [];
         $select = "*";
@@ -2097,28 +2132,67 @@ class CommandeManager implements CommandeInterface {
         return $validation;
     }
 
+<<<<<<< HEAD
+
+    public function showAllOrdersByClientExternal($LG_CLIID) 
+{
+    $array = array();  
+    $ConfigurationManager = new ConfigurationManager(); // Gestionnaire de configuration
+=======
     public function showAllOrdersByClientExternal($LG_CLIID) {
         $array = array();
         $ConfigurationManager = new ConfigurationManager();
+        //echo "--". $LG_CLIID. "---";
         try {
             $token = $ConfigurationManager->generateToken();
+>>>>>>> 4e428fc (modif)
 
-            $url = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/orders";
+    try {
+        $token = $ConfigurationManager->generateToken();
 
-            $headers = array(
-                'Accept: application/json',
-                'Content-Type: application/x-www-form-urlencoded',
-                "api_key: " . Parameters::$apikey,
-                "token: " . $token
-            );
+        $urlOrders = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/orders";
+        $headers = array(
+            'Accept: application/json',
+            'Content-Type: application/x-www-form-urlencoded',
+            "api_key: " . Parameters::$apikey,
+            "token: " . $token
+        );
 
-            // Initialisation de cURL
-            $ch = curl_init($url);
+        $ch = curl_init($urlOrders);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-            // Configuration de cURL
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+        $responseOrders = curl_exec($ch); 
+        curl_close($ch);
 
+<<<<<<< HEAD
+        $ordersObj = json_decode($responseOrders); 
+        if ($ordersObj === null && json_last_error() !== JSON_ERROR_NONE) {
+            throw new Exception('Erreur lors du décodage JSON des commandes');
+        }
+
+        // Construction de la réponse API
+        $array["data"] = array(
+            "sumAmountOrders" => $ordersObj->data->sumAmountOrders
+        );
+
+        Parameters::buildSuccessMessage("Commandes récupérées avec succès");
+    } catch (Exception $e) {
+        Parameters::buildErrorMessage($e->getMessage());
+    }
+
+    return $array;
+}
+
+    #[\Override]
+    public function showAllOrOneLivraison($search_value, $LG_LSTID) {
+    $arraySql = array(); // Initialisation du tableau pour stocker les résultats
+    try {
+        // Requête SQL corrigée
+        $query = "SELECT l.*, t.str_lstdescription 
+          FROM ".$this->Livraison." l 
+          JOIN ".$this->Liste." t 
+=======
             $response = curl_exec($ch);
             curl_close($ch);
 
@@ -2130,13 +2204,16 @@ class CommandeManager implements CommandeInterface {
             }
 
             $array = $obj;
+            
             Parameters::buildSuccessMessage("Commandes recuperé avec succès");
         } catch (Exception $exception) {
             error_log($exception->getMessage());
             Parameters::buildErrorMessage("Erreur lors de la récupération des commandes");
         }
-
+       // echo "--". $LG_CLIID. "---";
+        
         return $array;
+        
     }
 
     public function showAllOrOneLivraison($search_value, $LG_LSTID) {
@@ -2146,12 +2223,36 @@ class CommandeManager implements CommandeInterface {
             $query = "SELECT l.*, t.str_lstdescription 
           FROM " . $this->Livraison . " l 
           JOIN " . $this->Liste . " t 
+>>>>>>> 4e428fc (modif)
           ON l.lg_lstid = t.lg_lstid 
           WHERE l.str_livname LIKE :search_value 
             AND l.lg_lstid LIKE :LG_LSTID 
             AND l.str_livstatut != :STR_STATUT 
           ORDER BY l.dt_livbegin";
 
+<<<<<<< HEAD
+        $res = $this->dbconnexion->prepare($query);
+
+        // Exécution de la requête
+        $res->execute(array(
+            'search_value' => "%" . $search_value . "%", 
+            "LG_LSTID" => $LG_LSTID, 
+            "STR_STATUT" => Parameters::$statut_delete
+        ));
+
+        // Boucle pour récupérer les résultats
+        while ($rowObj = $res->fetch()) {
+            $arraySql[] = $rowObj;
+        }
+
+        $res->closeCursor(); // Fermeture du curseur
+    } catch (Exception $exc) {
+        error_log($exc->getMessage()); // Log des exceptions
+    }
+    return $arraySql; // Retourne les résultats
+}
+
+=======
             $res = $this->dbconnexion->prepare($query);
 
             // Exécution de la requête
@@ -2172,11 +2273,16 @@ class CommandeManager implements CommandeInterface {
         }
         return $arraySql; // Retourne les résultats
     }
+>>>>>>> 4e428fc (modif)
 
     public function showAllOrOneZonelivraisonActive() {
         $arraySql = array();
         try {
+<<<<<<< HEAD
+            $query = "SELECT * FROM ".$this->Liste." t WHERE t.lg_tylid LIKE :LG_TYLID and t.str_lststatut = :STR_STATUT and t.lg_lstid in (SELECT l.lg_lstid from ".$this->Livraison." l WHERE l.str_livstatut != :STR_STATUT_DELETE) order by t.str_lstdescription";
+=======
             $query = "SELECT * FROM " . $this->Liste . " t WHERE t.lg_tylid LIKE :LG_TYLID and t.str_lststatut = :STR_STATUT and t.lg_lstid in (SELECT l.lg_lstid from " . $this->Livraison . " l WHERE l.str_livstatut != :STR_STATUT_DELETE) order by t.str_lstdescription";
+>>>>>>> 4e428fc (modif)
             $res = $this->dbconnexion->prepare($query);
             //exécution de la requête
             $res->execute(array("LG_TYLID" => Parameters::$typelisteValue[0], "STR_STATUT" => Parameters::$statut_enable, "STR_STATUT_DELETE" => Parameters::$statut_delete));
@@ -2189,4 +2295,26 @@ class CommandeManager implements CommandeInterface {
         }
         return $arraySql;
     }
+<<<<<<< HEAD
+=======
+
+    public function totalOrder($LG_CLIID) {
+        $arraySql = array();
+        $amountHT = 0;
+        $amountTTC = 0;
+        try {
+            $orders = $this->showAllOrdersByClientExternal($LG_CLIID)->pieces;
+            foreach ($orders as $order) {
+                $amountHT += (int) $order->PcvMtHT;
+                $amountTTC += (int) $order->PcvMtTTC;
+            }
+            $arraySql["PcvMtHT"] = $amountHT;
+            $arraySql["PcvMtTTC"] = $amountTTC;
+        } catch (Exception $ex) {
+            $ex->getMessage();
+        }
+        return $arraySql;
+    }
+>>>>>>> 4e428fc (modif)
+
 }

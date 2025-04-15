@@ -208,6 +208,7 @@ interface ConfigurationInterface
 
     public function changeDocumentStatut($LG_DOCID, $OUtilisateur);
     public function resetPasswordUtilisateur($STR_UTIMAIL, $OUtilisateur = null);
+
 }
 
 class ConfigurationManager implements ConfigurationInterface
@@ -2184,8 +2185,11 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
         try {
             $token = $this->generateToken();
             $backUpDate = $this->getListe(Parameters::$LAST_BACKUP_DATE);
-
-            $url = "http://160.120.155.165/v1/reqsel?select=" . urlencode("Select PcvID,PcvGCliID,PcvDate,PcvLib,PcvRef,PcvMtHT,PcvMtTTC,PcvMtTotal, PcvEtatFNuf FROM PCV where " . ($date !== null ? "Year(PcvDate)=$date" : "PcvDate > '" . $backUpDate[0]['str_lstvalue']) . "' AND PcvPnaNuf='$search_value'");
+            
+            //echo "===" . $backUpDate[0]['str_lstvalue'] . "---";
+//            echo ($date !== null ? "Year(PcvDate)=$date" : "PcvDate > '" . $backUpDate[0]['str_lstvalue']);
+            $url = "http://160.120.155.165/v1/reqsel?select=" . urlencode("Select PcvID,PcvGCliID,PcvDate,PcvLib,PcvRef,PcvMtHT,PcvMtTTC,PcvMtTotal, PcvEtatFNuf FROM PCV where " . ($date !== null ? "Year(PcvDate)='".$date : "PcvDate > '" . $backUpDate[0]['str_lstvalue']) . "' AND PcvPnaNuf='".$search_value."'");//a decommenter en cas d'urgence
+//            $url = "http://160.120.155.165/v1/reqsel?select=" . ("Select PcvID,PcvGCliID,PcvDate,PcvLib,PcvRef,PcvMtHT,PcvMtTTC,PcvMtTotal, PcvEtatFNuf FROM PCV where " . ($date !== null ? "Year(PcvDate)='".$date : "PcvDate > '" . $backUpDate[0]['str_lstvalue']) . "' AND PcvPnaNuf='".$search_value."'");
 
             $headers = array(
                 'Accept: application/json',
@@ -2194,6 +2198,9 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
                 "token: " . $token
             );
 
+//            echo "Token:::" . $token;
+//            echo "URL:::" . $url;
+            
             $ch = curl_init($url);
 
             // Configuration de cURL
@@ -2202,6 +2209,8 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
 
             $response = curl_exec($ch);
             curl_close($ch);
+            
+//            var_dump($response);
 
             $obj = json_decode($response);
             // Vérifier si la conversion a réussi
@@ -2211,7 +2220,7 @@ group by uti.str_utifirstlastname, soc.str_socname, soc.str_socsiret, soc.str_so
 
             $array = $obj;
 
-        } catch (\Exception $exc) {
+        } catch (Exception $exc) {
             var_dump($exc->getTraceAsString());
         }
         return $array;

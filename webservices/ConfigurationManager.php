@@ -4,7 +4,7 @@ header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Credentials: true");
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization");
-header('Content-Type: application/json'); 
+header('Content-Type: application/json');
 
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
@@ -29,11 +29,8 @@ $length = 25;
 $STR_UTITOKEN = "";
 $OUtilisateur = null;
 
-
 $ConfigurationManager = new ConfigurationManager();
 $OneSignal = new OneSignal();
-
-
 
 $mode = $_REQUEST['mode'];
 
@@ -271,8 +268,8 @@ if ($mode == "listTypetransaction") {
         $LG_LSTID = $_REQUEST['LG_LSTID'];
     }
     if (isset($params['p_key'])) {
-    $p_key = $params['p_key'];
-} 
+        $p_key = $params['p_key'];
+    }
 
     //moi
     if (isset($_REQUEST['STR_UTIFIRSTLASTNAME'])) {
@@ -287,16 +284,15 @@ if ($mode == "listTypetransaction") {
         $STR_UTISTATUT = $_REQUEST['STR_UTISTATUT'];
     }
 
-   
+
     if (isset($_REQUEST['STR_UTILOGIN'])) {
         $STR_UTILOGIN = $_REQUEST['STR_UTILOGIN'];
     }
 
     if (isset($_REQUEST['STR_UTIPASSWORD'])) {
         $STR_UTIPASSWORD = $_REQUEST['STR_UTIPASSWORD'];
-    
     }
-    if(isset($_REQUEST['STR_UTIMAIL'])){
+    if (isset($_REQUEST['STR_UTIMAIL'])) {
         $STR_UTIMAIL = $_REQUEST['STR_UTIMAIL'];
     }
     //moi
@@ -491,59 +487,65 @@ if ($mode == "listTypetransaction") {
         if ($value != null) {
             $arrayJson = $value[0];
         }
-    }else if ($mode == "getProducts") {
-    $StockManager = new StockManager();
-    $arrayJson["products_not_found"] = [];
+    } else if ($mode == "getProducts") {
+        $StockManager = new StockManager();
+        $arrayJson["products_not_found"] = [];
 
-    foreach (json_decode($CMD_DATA) as $item) {
-        // Vérification de l'existence de la propriété str_proname
-        if (!isset($item->str_proname) || empty($item->str_proname)) {
-            $arrayJson["products_not_found"][] = "Nom du produit manquant";
-            continue;
-        }
-
-        $product = $StockManager->getProduct($item->str_proname);
-        if ($product != null) {
-            foreach ($product as $value) {
-                $arrayJson_chidren = array();
-                $arrayJson_chidren['str_proname'] = $value['str_proname'];
-                $arrayJson_chidren['str_prodescription'] = $value['str_prodescription'];
-                $arrayJson_chidren['int_propricevente'] = $value['int_propricevente'];
-                $arrayJson_chidren['int_cprquantity'] = (int) $item->int_cprquantity;
-                $arrayJson_chidren['dbl_montant'] = (int) $value['int_propricevente'] * (int) $item->int_cprquantity;
-                $arrayJson["products"][] = $arrayJson_chidren;
+        foreach (json_decode($CMD_DATA) as $item) {
+            // Vérification de l'existence de la propriété str_proname
+            if (!isset($item->str_proname) || empty($item->str_proname)) {
+                $arrayJson["products_not_found"][] = "Nom du produit manquant";
+                continue;
             }
-        } else {
-            $arrayJson["products_not_found"][] = $item->str_proname;
+
+            $product = $StockManager->getProduct($item->str_proname);
+            if ($product != null) {
+                foreach ($product as $value) {
+                    $arrayJson_chidren = array();
+                    $arrayJson_chidren['str_proname'] = $value['str_proname'];
+                    $arrayJson_chidren['str_prodescription'] = $value['str_prodescription'];
+                    $arrayJson_chidren['int_propricevente'] = $value['int_propricevente'];
+                    $arrayJson_chidren['int_cprquantity'] = (int) $item->int_cprquantity;
+                    $arrayJson_chidren['dbl_montant'] = (int) $value['int_propricevente'] * (int) $item->int_cprquantity;
+                    $arrayJson["products"][] = $arrayJson_chidren;
+                }
+            } else {
+                $arrayJson["products_not_found"][] = $item->str_proname;
+            }
         }
     }
-}
 //moi
     else if ($mode == "listUsers") {
-        $result = $ConfigurationManager->showAllOrOneBackUsers($FILTER_OPTIONS, $LIMIT, $PAGE);
-        foreach ($result['data'] as $value) {
-            $profil = $ConfigurationManager->getProfile($value['lg_proid']);
-            $arrayJson_chidren["UTIID"] = $value["lg_utiid"];
-            $arrayJson_chidren["UTIFIRSTLASTNAME"] = $value["str_utifirstlastname"];
-            $arrayJson_chidren["UTIMAIL"] = $value["str_utimail"];
-            $arrayJson_chidren["UTIPHONE"] = $value["str_utiphone"];
-            $arrayJson_chidren["UTICREATED"] = $value["dt_uticreated"];
-            $arrayJson_chidren["UTIPROFIL"] = $profil[0]['str_prodescription'];
-            $arrayJson_chidren["UTIPIC"] = $profil[0]['str_utipic'];
-            $OJson[] = $arrayJson_chidren;
-        }
+    $result = $ConfigurationManager->showAllOrOneBackUsers($FILTER_OPTIONS ?? null, $LIMIT ?? 25, $PAGE ?? 1);
 
-        if (!empty($result) and isset($result)) {
-            Parameters::buildSuccessMessage("Utilisateurs trouvés");
-        } else {
-            Parameters::buildSuccessMessage("Aucun utilisateurs trouvés");
-        }
+    foreach ($result['data'] as $value) {
+        $profil = $ConfigurationManager->getProfile($value['lg_proid']);
 
-        $arrayJson["data"] = $OJson;
-        $arrayJson["total"] = $result['total'];
-        $arrayJson["limit"] = (int) $LIMIT;
-        $arrayJson["page"] = (int) $PAGE;
-    } else if ($mode == 'getClientDemandes') {
+        $arrayJson_chidren = [
+            "UTIID" => $value["lg_utiid"],
+            "UTIFIRSTLASTNAME" => $value["str_utifirstlastname"],
+            "UTIMAIL" => $value["str_utimail"],
+            "UTIPHONE" => $value["str_utiphone"],
+            "UTICREATED" => $value["dt_uticreated"],
+            "UTIPROFIL" => $profil[0]['str_prodescription'] ?? "Profil inconnu",
+            "UTIPIC" => $profil[0]['str_utipic'] ?? null
+        ];
+
+        $OJson[] = $arrayJson_chidren;
+    }
+
+    if (!empty($result) && isset($result['data'])) {
+        Parameters::buildSuccessMessage("Utilisateurs trouvés");
+    } else {
+        Parameters::buildSuccessMessage("Aucun utilisateur trouvé");
+    }
+
+    $arrayJson["data"] = $OJson;
+    $arrayJson["total"] = $result['total'] ?? 0;
+    $arrayJson["limit"] = (int) ($LIMIT ?? 25);
+    $arrayJson["page"] = (int) ($PAGE ?? 1);
+}
+ else if ($mode == 'getClientDemandes') {
         $result = $ConfigurationManager->showAllOrOneClientRequest($FILTER_OPTIONS, $LIMIT, $PAGE);
         foreach ($result['data'] as $val) {
             $arrayJson_chidren = array();
@@ -593,6 +595,7 @@ if ($mode == "listTypetransaction") {
             Parameters::buildSuccessMessage("Aucun utilisateur trouvé");
         }
     } else if ($mode == "getClientDemande") {
+        $STATUT = isset($STATUT) ? $STATUT : 'default_value'; 
         $value = $ConfigurationManager->getClientDemande($LG_SOCID, $STATUT);
         if ($value) {
             $Images = $ConfigurationManager->showAllOrOneDocumentAndType($LG_SOCID);
@@ -628,7 +631,7 @@ if ($mode == "listTypetransaction") {
             $arrayJson[] = $value[0];
         }
     } else if ($mode == "createSociete") {
-       // $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
+        // $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
         $ConfigurationManager->createSociete($STR_SOCNAME, $STR_SOCDESCRIPTION, $STR_SOCLOGO ?? null, $STR_SOCMAIL, $STR_SOCPHONE, $STR_SOCSIRET, $LG_LSTTYPESOCID, $LG_LSTPAYID, $STR_SOCCODE, $OUtilisateur);
     } else if ($mode == "updateSociete") {
         //$OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
@@ -758,7 +761,9 @@ if ($mode == "listTypetransaction") {
             $arrayJson_chidren["LG_DOCID"] = $value['lg_docid'];
             $arrayJson_chidren["STR_DOCPATH"] = Parameters::$rootFolderRelative . "documents/" . $value['p_key'] . "/" . $value['str_docpath'];
             $arrayJson_chidren["DT_DOCCREATED"] = $value['dt_doccreated'];
-            $arrayJson_chidren["str_ACTION"] = "<span class='text-warning' title='Mise à jour du document " . $value['str_docname'] . "'></span>";
+            $arrayJson_chidren["str_ACTION"] = "<span class='text-warning' title='Mise à jour du document "
+                    . (!empty($value['str_docname']) ? $value['str_docname'] : "") . "'></span>";
+
             $arrayJson_chidren["STR_DOCSTATUT"] = $value['str_docstatut'];
             $OJson[] = $arrayJson_chidren;
         }
@@ -776,21 +781,29 @@ if ($mode == "listTypetransaction") {
         }
         $arrayJson["data"] = $OJson;
     } else if ($mode == "showAllProductImages") {
-    $result = $ConfigurationManager->showAllProductImages($LG_PROID);
-    $OJson = [];
+        $result = $ConfigurationManager->showAllProductImages($LG_PROID);
+        $OJson = [];
 
-    foreach ($result as $value) {
-        $arrayJson_chidren['id'] = $value['lg_proid'] ?? $value["lg_docid"];
-        $arrayJson_chidren['src'] = Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . (isset($value['str_propic']) ? $value['str_propic'] : $value["str_docpath"]);
-        
-        $arrayJson_chidren['isMain'] = isset($value['str_propic']) && !empty($value['str_propic']);
+        foreach ($result as $value) {
+            $arrayJson_chidren['id'] = $value['lg_proid'] ?? $value["lg_docid"];
+<<<<<<< HEAD
+            $arrayJson_chidren['src'] = Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . ($value['str_propic'] ?? $value["str_docpath"]);
+            if (isset($value['str_propic']) && $value['str_propic']) {
+                $arrayJson_chidren['isMain'] = true;
+            } else {
+                $arrayJson_chidren['isMain'] = false;
+            }
+=======
+            $arrayJson_chidren['src'] = Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . (isset($value['str_propic']) ? $value['str_propic'] : $value["str_docpath"]);
 
-        $OJson[] = $arrayJson_chidren;
-    }
+            $arrayJson_chidren['isMain'] = isset($value['str_propic']) && !empty($value['str_propic']);
 
-    $arrayJson["data"] = $OJson;
-}
- else if ($mode === "loadExternalDocuments") {
+>>>>>>> 4e428fc (modif)
+            $OJson[] = $arrayJson_chidren;
+        }
+
+        $arrayJson["data"] = $OJson;
+    } else if ($mode === "loadExternalDocuments") {
         $ConfigurationManager->loadExternalDocuments($table, $search, $date);
     } else if ($mode === "loadInvoiceProduct") {
         $CommandeManager = new CommandeManager();
@@ -938,6 +951,7 @@ if ($mode == "listTypetransaction") {
 
         $arrayJson["data"] = $OJson;
     } else if ($mode == "listProfile") {
+        $FILTER_OPTIONS = $_REQUEST['FILTER_OPTIONS'] ?? null;
         $result = $ConfigurationManager->showAllOrOneProfile($FILTER_OPTIONS, $LIMIT, $PAGE);
         foreach ($result["data"] as $value) {
             $liste = $ConfigurationManager->getListe($value['lg_lstid']);
@@ -959,10 +973,8 @@ if ($mode == "listTypetransaction") {
         $arrayJson["total"] = $result['total'];
         $arrayJson["limit"] = (int) $LIMIT;
         $arrayJson["page"] = (int) $PAGE;
-    }  else if ($mode == "resetPasswordUtilisateur") {
+    } else if ($mode == "resetPasswordUtilisateur") {
         $ConfigurationManager->resetPasswordUtilisateur($STR_UTIMAIL, $OUtilisateur);
-        
-        
     }
 
     $arrayJson["code_statut"] = Parameters::$Message;

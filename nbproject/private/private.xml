@@ -4,10 +4,19 @@
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/CommandeManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/ConfigurationManager.php</file>
-            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/StockManager.php</file>
+<<<<<<< HEAD
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/CommandeManager.php</file>
             <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/Parameters.php</file>
+=======
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/ConfigurationManager.php</file>
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/StockManager.php</file>
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/ConfigurationManager.php</file>
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/Authentification.php</file>
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/CommandeManager.php</file>
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/StatistiqueManager.php</file>
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/bll/StatistiqueManager.php</file>
+            <file>file:/C:/xampp/htdocs/extranetbackend/backoffice/webservices/StockManager.php</file>
+>>>>>>> 4e428fc (modif)
         </group>
     </open-files>
 </project-private>

@@ -80,6 +80,7 @@ if (isset($_REQUEST['STR_PROGAMME'])) {
 }
 
 if ($mode == "listProduct") {
+    $FILTER_OPTIONS = $_REQUEST['$FILTER_OPTIONS'] ?? null;
     $result = $StockManager->showAllOrOneProduct($FILTER_OPTIONS, $LIMIT, $PAGE);
     $rootFolderRelative = __DIR__ . "/../images/";
     foreach ($result['products'] as $value) {
@@ -225,33 +226,36 @@ if ($mode == "listProduct") {
     $arrayJson["data"] = $OJson;
 } else if ($mode == "filterProductByGammeOrCategory") {
     $arrayJson["Products"] = $StockManager->filterProductByGammeOrCategory($FILTER_OPTIONS);
-} else if ($mode == "getProductByCategory") {
+} if ($mode == "getProductByCategory") {
     $result = $StockManager->getProductsByCategory();
+    $arrayJson["data"] = [];
+
     foreach ($result as $key => $value) {
         if (count($value) > 0) {
             $arrayJson["data"][$key] = [];
             foreach ($value as $product) {
                 $arrayJson["data"][$key][] = [
-                    "ArtID" => $product['lg_proid'],
-                    "ArtCode" => $product['str_proname'],
-                    "ArtLib" => $product['str_prodescription'],
-                    "ArtPrixBase" => $product['int_propricevente'],
-                    "ArtStk" => $product['int_prostock'],
-                    "ArtLastPA" => $product['int_propriceachat'],
-                    "ArtCateg" => $product['str_procateg'],
-                    "CmtTxt" => $product['str_prodetails'],
-                    "lg_prosubid" => $product['lg_prosubid'],
-                    "ArtFamille" => $product['str_profamille'],
-                    "ArtGamme" => $product['str_progamme'],
-                    "ArtSpecies" => $product['str_proespece'],
-                    "ArtGPicID" => $product["p_key"] ? Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . $product['str_docpath'] : null,
-                    "str_propic" => $product['str_propic'],
-                    "ArtSlug" => $product["str_proslug"],
+                    "ArtID" => $product['lg_proid'] ?? null,
+                    "ArtCode" => $product['str_proname'] ?? null,
+                    "ArtLib" => $product['str_prodescription'] ?? null,
+                    "ArtPrixBase" => $product['int_propricevente'] ?? null,
+                    "ArtStk" => $product['int_prostock'] ?? null,
+                    "ArtLastPA" => $product['int_propriceachat'] ?? null,
+                    "ArtCateg" => $product['str_procateg'] ?? null,
+                    "CmtTxt" => $product['str_prodetails'] ?? null,
+                    "lg_prosubid" => $product['lg_prosubid'] ?? "ID non défini",
+                    "ArtFamille" => $product['str_profamille'] ?? null,
+                    "ArtGamme" => $product['str_progamme'] ?? null,
+                    "ArtSpecies" => $product['str_proespece'] ?? null,
+                    "ArtGPicID" => isset($product["p_key"]) ? Parameters::$rootFolderRelative . "produits/" . $product['lg_proid'] . "/" . $product['str_docpath'] : "Chemin non disponible",
+                    "str_propic" => $product['str_propic'] ?? null,
+                    "ArtSlug" => $product["str_proslug"] ?? null,
                 ];
             }
         }
     }
-} else {
+}
+ else {
     $arrayJson["code_statut"] = Parameters::$Message;
     $arrayJson["desc_statut"] = Parameters::$Detailmessage;
 }

@@ -27,61 +27,20 @@ $OneSignal = new OneSignal();
 
 $mode = $_REQUEST['mode'];
 
-if (isset($_REQUEST['start'])) {
-    $start = $_REQUEST['start'];
-}
+$total = 0;
+$start = $_REQUEST['start'] ?? 0;
+$length = $_REQUEST['length'] ?? 25;
+$search_value = $_REQUEST['search_value'] ?? ($_REQUEST['search_value[value]'] ?? ($_REQUEST['query'] ?? ""));
+$STR_UTITOKEN = $_REQUEST['STR_UTITOKEN'] ?? null;
+$LG_SOCID = $_REQUEST['LG_SOCID'] ?? null;
+$DT_BEGIN = $_REQUEST['DT_BEGIN'] ?? null;
+$DT_END = $_REQUEST['DT_END'] ?? null;
+$YEAR = $_REQUEST['YEAR'] ?? null;
+$FILTER_OPTIONS = $_REQUEST['FILTER_OPTIONS'] ?? null;
+$LIMIT = $_REQUEST['LIMIT'] ?? null;
+$PAGE = $_REQUEST['PAGE'] ?? null;
+$PCVGCLIID = $_REQUEST['PCVGCLIID'] ?? null;
 
-if (isset($_REQUEST['length'])) {
-    $length = $_REQUEST['length'];
-}
-
-if (isset($_REQUEST['search_value'])) {
-    $search_value = $_REQUEST['search_value'];
-}
-
-if (isset($_REQUEST['search_value[value]'])) {
-    $search_value = $_REQUEST['search_value[value]'];
-}
-
-if (isset($_REQUEST['query'])) {
-    $search_value = $_REQUEST['query'];
-}
-
-if (isset($_REQUEST['STR_UTITOKEN'])) {
-    $STR_UTITOKEN = $_REQUEST['STR_UTITOKEN'];
-}
-
-if (isset($_REQUEST['LG_SOCID'])) {
-    $LG_SOCID = $_REQUEST['LG_SOCID'];
-}
-
-if (isset($_REQUEST['DT_BEGIN']) && $_REQUEST['DT_BEGIN'] != "") {
-    $DT_BEGIN = $_REQUEST['DT_BEGIN'];
-}
-
-if (isset($_REQUEST['DT_END']) && $_REQUEST['DT_END'] != "") {
-    $DT_END = $_REQUEST['DT_END'];
-}
-
-if (isset($_REQUEST['YEAR']) && $_REQUEST['YEAR'] != "") {
-    $YEAR = $_REQUEST['YEAR'];
-}
-
-if (isset($_REQUEST['FILTER_OPTIONS']) && $_REQUEST['FILTER_OPTIONS'] != "") {
-    $FILTER_OPTIONS = $_REQUEST['FILTER_OPTIONS'];
-}
-
-if (isset($_REQUEST['LIMIT']) && $_REQUEST['LIMIT'] != "") {
-    $LIMIT = $_REQUEST['LIMIT'];
-}
-
-if (isset($_REQUEST['PAGE']) && $_REQUEST['PAGE'] != "") {
-    $PAGE = $_REQUEST['PAGE'];
-}
-
-if (isset($_REQUEST['PCVGCLIID']) && $_REQUEST['PCVGCLIID'] != "") {
-    $PCVGCLIID = $_REQUEST['PCVGCLIID'];
-}
 
 $OUtilisateur = $ConfigurationManager->getUtilisateur($STR_UTITOKEN);
 

@@ -150,7 +150,12 @@ class StatistiqueManager implements StatistiqueInterface
                ) as subquery";
             $res = $this->dbconnnexion->prepare($queryCount);
             if (!empty($FILTER_OPTIONS)) {
-                $params = [Parameters::$piste_audit_consultation, "%" . $FILTER_OPTIONS["search"] . "%", $FILTER_OPTIONS["month"]];
+               $params = [
+        Parameters::$piste_audit_consultation,
+        "%" . ($FILTER_OPTIONS["search"] ?? "") . "%",
+        $FILTER_OPTIONS["month"] ?? null
+    ];
+
             }
             $res->execute($params);
             $count = $res->fetchAll(PDO::FETCH_ASSOC);

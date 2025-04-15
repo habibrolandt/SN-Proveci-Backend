@@ -266,6 +266,7 @@ class StockManager implements StockInterface
         $arraySql = array();
         $WHERE = [];
         $select = "*";
+        $query = "";
         Parameters::buildSuccessMessage("Liste des produits obtenus avec succès");
         try {
             if (!empty($FILTERS_OPTIONS)) {
@@ -305,6 +306,8 @@ class StockManager implements StockInterface
             $query .= implode(" AND ", $WHERE);
             $query .= " ORDER BY t.str_prodescription";
             $params = [];
+            
+            $FILTERS_OPTIONS = $FILTERS_OPTIONS ?? [];
 
             foreach ($FILTERS_OPTIONS as $key => $value) {
                 if ($key == "str_proespece") {
