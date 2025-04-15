@@ -100,20 +100,13 @@ interface CommandeInterface {
     public function showAllOrOneInvoiceProducts($LG_CLIID, $LG_COMMID, $token = null);
 
     public function showAllOrders($params_conditions);
-<<<<<<< HEAD
-    
-    public function showAllOrOneLivraison($search_value, $LG_LSTID);
-    public function showAllOrOneZonelivraisonActive();
-    
-=======
-
     //gestion des livraisons
     public function showAllOrOneLivraison($search_value, $LG_LSTID);
 
     public function showAllOrOneZonelivraisonActive();
 
     public function totalOrder($LG_CLIID);
->>>>>>> 4e428fc (modif)
+
 }
 
 class CommandeManager implements CommandeInterface {
@@ -1785,22 +1778,16 @@ public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROI
         return $validation;
     }
 
-<<<<<<< HEAD
 
-    public function getCalendarFrontOfiice()
-{
-    $arraySql = [];
-    $array_place = [];
-    $array_delivery = [];
-=======
+
+ 
+
     public function getCalendarFrontOfiice() {
         $arraySql = array();
         $array_place = array();
         $array_delivery = array();
-        try {
-            $deliveryPlace = $this->getDeliveryPlace([], 99999, 1);
-            $calendar = $this->showAllOrOneDeliveryCalendar([], 99999, 1);
->>>>>>> 4e428fc (modif)
+        
+
 
     try {
         // Récupération des données
@@ -1854,16 +1841,17 @@ public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROI
         Parameters::buildErrorMessage("Échec de la récupération du calendrier de livraison");
     }
 
-<<<<<<< HEAD
+
     return $arraySql;
+
 }
 
 
-    public function listClientCommande($token = null, $LG_SOCID, $LG_AGEID)
-    {
-=======
+    
+   
+
     public function listClientCommande($token = null, $LG_SOCID, $LG_AGEID) {
->>>>>>> 4e428fc (modif)
+
         $ConfigurationManager = new ConfigurationManager();
         $arraySql = array();
         try {
@@ -1915,6 +1903,7 @@ public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROI
         Parameters::buildSuccessMessage("Commandes recupérées avec succès.");
         return $arraySql;
     }
+    
 
     public function listProductByCommande($LG_COMMID) {
         $arraySql = array();
@@ -1941,17 +1930,9 @@ public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROI
         return $arraySql;
     }
 
-<<<<<<< HEAD
-    public function getClientCalendar($LG_AGEID = null)
-{
-    $arraySql = array();
-    $params = array();
-    Parameters::buildSuccessMessage("Calendrier de livraison récupéré avec succès");
 
-    try {
-        $query = "
-            SELECT lst.str_lstvalue, lst.str_lstdescription, l.dt_livbegin, l.dt_livend, l.lg_livid
-=======
+    
+
     public function getClientCalendar($LG_AGEID = null) {
         $arraySql = array();
         $params = array();
@@ -1959,21 +1940,19 @@ public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROI
         try {
             $query = "
                     SELECT lst.str_lstvalue, lst.str_lstdescription, l.dt_livbegin, l.dt_livend, l.lg_livid
->>>>>>> 4e428fc (modif)
+
             FROM livraison l 
             INNER JOIN liv_commande lc ON l.lg_livid = lc.lg_livid 
             INNER JOIN commande c ON lc.lg_commid = c.lg_commid 
             INNER JOIN liste lst ON l.lg_lstid = lst.lg_lstid
-<<<<<<< HEAD
+
             " . ($LG_AGEID !== null ? "WHERE c.lg_ageid = :LG_AGEID" : "") . "
             GROUP BY l.lg_livid 
             ORDER BY l.dt_livbegin ASC 
         ";
-=======
-            " . ($LG_AGEID != null ? "WHERE c.lg_ageid = :LG_AGEID" : "") . "
-            GROUP BY l.lg_livid
-            ";
->>>>>>> 4e428fc (modif)
+
+            
+
 
         if ($this->dbconnexion) {
             if ($LG_AGEID !== null) {
@@ -1997,16 +1976,14 @@ public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROI
         Parameters::buildErrorMessage("Impossible de récupérer le planning de livraison, veuillez contacter votre administrateur.");
     }
 
-<<<<<<< HEAD
+
     return $arraySql;
 }
 
 
-    public function showAllOrOneOrderOrInvoice($FILTER_OPTIONS, $LIMIT, $PAGE, $TABLE): array
-    {
-=======
+    
     public function showAllOrOneOrderOrInvoice($FILTER_OPTIONS, $LIMIT, $PAGE, $TABLE): array {
->>>>>>> 4e428fc (modif)
+
         $arraySql = array();
         $WHERE = [];
         $select = "*";
@@ -2132,67 +2109,32 @@ public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROI
         return $validation;
     }
 
-<<<<<<< HEAD
 
-    public function showAllOrdersByClientExternal($LG_CLIID) 
-{
-    $array = array();  
-    $ConfigurationManager = new ConfigurationManager(); // Gestionnaire de configuration
-=======
+
+    
+
     public function showAllOrdersByClientExternal($LG_CLIID) {
         $array = array();
         $ConfigurationManager = new ConfigurationManager();
-        //echo "--". $LG_CLIID. "---";
         try {
             $token = $ConfigurationManager->generateToken();
->>>>>>> 4e428fc (modif)
 
-    try {
-        $token = $ConfigurationManager->generateToken();
+            $url = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/orders";
 
-        $urlOrders = Parameters::$urlRootAPI . "/clients/" . $LG_CLIID . "/orders";
-        $headers = array(
-            'Accept: application/json',
-            'Content-Type: application/x-www-form-urlencoded',
-            "api_key: " . Parameters::$apikey,
-            "token: " . $token
-        );
+            $headers = array(
+                'Accept: application/json',
+                'Content-Type: application/x-www-form-urlencoded',
+                "api_key: " . Parameters::$apikey,
+                "token: " . $token
+            );
 
-        $ch = curl_init($urlOrders);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+            // Initialisation de cURL
+            $ch = curl_init($url);
 
-        $responseOrders = curl_exec($ch); 
-        curl_close($ch);
+            // Configuration de cURL
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
-<<<<<<< HEAD
-        $ordersObj = json_decode($responseOrders); 
-        if ($ordersObj === null && json_last_error() !== JSON_ERROR_NONE) {
-            throw new Exception('Erreur lors du décodage JSON des commandes');
-        }
-
-        // Construction de la réponse API
-        $array["data"] = array(
-            "sumAmountOrders" => $ordersObj->data->sumAmountOrders
-        );
-
-        Parameters::buildSuccessMessage("Commandes récupérées avec succès");
-    } catch (Exception $e) {
-        Parameters::buildErrorMessage($e->getMessage());
-    }
-
-    return $array;
-}
-
-    #[\Override]
-    public function showAllOrOneLivraison($search_value, $LG_LSTID) {
-    $arraySql = array(); // Initialisation du tableau pour stocker les résultats
-    try {
-        // Requête SQL corrigée
-        $query = "SELECT l.*, t.str_lstdescription 
-          FROM ".$this->Livraison." l 
-          JOIN ".$this->Liste." t 
-=======
             $response = curl_exec($ch);
             curl_close($ch);
 
@@ -2204,85 +2146,37 @@ public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROI
             }
 
             $array = $obj;
-            
             Parameters::buildSuccessMessage("Commandes recuperé avec succès");
         } catch (Exception $exception) {
             error_log($exception->getMessage());
             Parameters::buildErrorMessage("Erreur lors de la récupération des commandes");
         }
-       // echo "--". $LG_CLIID. "---";
-        
+
         return $array;
-        
     }
 
-    public function showAllOrOneLivraison($search_value, $LG_LSTID) {
-        $arraySql = array(); // Initialisation du tableau pour stocker les résultats
+    #[\Override]
+     public function showAllOrOneLivraison($search_value, $LG_LSTID) {
+        $arraySql = array();
         try {
-            // Requête SQL corrigée
-            $query = "SELECT l.*, t.str_lstdescription 
-          FROM " . $this->Livraison . " l 
-          JOIN " . $this->Liste . " t 
->>>>>>> 4e428fc (modif)
-          ON l.lg_lstid = t.lg_lstid 
-          WHERE l.str_livname LIKE :search_value 
-            AND l.lg_lstid LIKE :LG_LSTID 
-            AND l.str_livstatut != :STR_STATUT 
-          ORDER BY l.dt_livbegin";
-
-<<<<<<< HEAD
-        $res = $this->dbconnexion->prepare($query);
-
-        // Exécution de la requête
-        $res->execute(array(
-            'search_value' => "%" . $search_value . "%", 
-            "LG_LSTID" => $LG_LSTID, 
-            "STR_STATUT" => Parameters::$statut_delete
-        ));
-
-        // Boucle pour récupérer les résultats
-        while ($rowObj = $res->fetch()) {
-            $arraySql[] = $rowObj;
-        }
-
-        $res->closeCursor(); // Fermeture du curseur
-    } catch (Exception $exc) {
-        error_log($exc->getMessage()); // Log des exceptions
-    }
-    return $arraySql; // Retourne les résultats
-}
-
-=======
+            $query = "SELECT * FROM " . $this->Livraison . " t where t.str_livname LIKE :search_value and t.lg_lstid like :LG_LSTID and t.str_livstatut != :STR_STATUT order by t.dt_livbegin";
             $res = $this->dbconnexion->prepare($query);
-
-            // Exécution de la requête
-            $res->execute(array(
-                'search_value' => "%" . $search_value . "%",
-                "LG_LSTID" => $LG_LSTID,
-                "STR_STATUT" => Parameters::$statut_delete
-            ));
-
-            // Boucle pour récupérer les résultats
+            //exécution de la requête
+            $res->execute(array('search_value' => "%" . $search_value . "%", "LG_LSTID" => $LG_LSTID, "STR_STATUT" => Parameters::$statut_delete));
             while ($rowObj = $res->fetch()) {
                 $arraySql[] = $rowObj;
             }
-
-            $res->closeCursor(); // Fermeture du curseur
+            $res->closeCursor();
         } catch (Exception $exc) {
-            error_log($exc->getMessage()); // Log des exceptions
+            $exc->getTraceAsString();
         }
-        return $arraySql; // Retourne les résultats
+        return $arraySql;
     }
->>>>>>> 4e428fc (modif)
 
     public function showAllOrOneZonelivraisonActive() {
         $arraySql = array();
         try {
-<<<<<<< HEAD
-            $query = "SELECT * FROM ".$this->Liste." t WHERE t.lg_tylid LIKE :LG_TYLID and t.str_lststatut = :STR_STATUT and t.lg_lstid in (SELECT l.lg_lstid from ".$this->Livraison." l WHERE l.str_livstatut != :STR_STATUT_DELETE) order by t.str_lstdescription";
-=======
             $query = "SELECT * FROM " . $this->Liste . " t WHERE t.lg_tylid LIKE :LG_TYLID and t.str_lststatut = :STR_STATUT and t.lg_lstid in (SELECT l.lg_lstid from " . $this->Livraison . " l WHERE l.str_livstatut != :STR_STATUT_DELETE) order by t.str_lstdescription";
->>>>>>> 4e428fc (modif)
             $res = $this->dbconnexion->prepare($query);
             //exécution de la requête
             $res->execute(array("LG_TYLID" => Parameters::$typelisteValue[0], "STR_STATUT" => Parameters::$statut_enable, "STR_STATUT_DELETE" => Parameters::$statut_delete));
@@ -2295,8 +2189,6 @@ public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROI
         }
         return $arraySql;
     }
-<<<<<<< HEAD
-=======
 
     public function totalOrder($LG_CLIID) {
         $arraySql = array();
@@ -2315,6 +2207,5 @@ public function createCommandeProduit($LG_COMMID, $LG_CLIID, $LG_AGEID, $LG_PROI
         }
         return $arraySql;
     }
->>>>>>> 4e428fc (modif)
 
 }

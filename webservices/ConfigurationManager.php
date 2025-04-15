@@ -786,19 +786,19 @@ if ($mode == "listTypetransaction") {
 
         foreach ($result as $value) {
             $arrayJson_chidren['id'] = $value['lg_proid'] ?? $value["lg_docid"];
-<<<<<<< HEAD
+
             $arrayJson_chidren['src'] = Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . ($value['str_propic'] ?? $value["str_docpath"]);
             if (isset($value['str_propic']) && $value['str_propic']) {
                 $arrayJson_chidren['isMain'] = true;
             } else {
                 $arrayJson_chidren['isMain'] = false;
             }
-=======
+
             $arrayJson_chidren['src'] = Parameters::$rootFolderRelative . "produits/" . "$LG_PROID/" . (isset($value['str_propic']) ? $value['str_propic'] : $value["str_docpath"]);
 
             $arrayJson_chidren['isMain'] = isset($value['str_propic']) && !empty($value['str_propic']);
 
->>>>>>> 4e428fc (modif)
+
             $OJson[] = $arrayJson_chidren;
         }
 

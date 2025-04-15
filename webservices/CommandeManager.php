@@ -157,11 +157,11 @@ if ($mode == "listCommande") {
     }
 
     $arrayJson["data"] = $OJson;
-<<<<<<< HEAD
-=======
+
+
     echo json_encode($arrayJson, JSON_PRETTY_PRINT);
     exit;
->>>>>>> 4e428fc (modif)
+
 }else if ($mode == "getCalendar") {
     $listZonelivraison = $CommandeManager->showAllOrOneZonelivraisonActive();
     $tabsData = array();
@@ -170,13 +170,8 @@ if ($mode == "listCommande") {
     foreach ($listZonelivraison as $value) {
         // Ajout des données dans tabsData
         $tabsData[] = array(
-<<<<<<< HEAD
             "id" => "product-tab-" . strtolower(str_replace(" ", "-", $value['str_lstvalue'])), // Génération d'un ID unique
             "title" => $value['str_lstvalue'] // Titre de la région
-=======
-            "id" => "product-tab-" . strtolower(str_replace(" ", "-", $value['str_lstvalue'])),
-            "title" => $value['str_lstvalue']
->>>>>>> 4e428fc (modif)
         );
 
         // Initialisation de la liste pour cette région
@@ -185,17 +180,10 @@ if ($mode == "listCommande") {
 
         foreach ($listLivraison as $v) {
             $regionData[] = array(
-<<<<<<< HEAD
                 "id" => $v['lg_livid'], // ID de livraison
                 "date" => "01/07 avant 12H00", // Exemple de date limite (à remplacer par votre logique métier)
                 "deliveryDate" => $v['dt_livbegin'], // Date de livraison prévue
                 "areas" => isset($v['str_lstdescription']) ? $v['str_lstdescription'] : "Zone inconnue" // Zone géographique
-=======
-                "id" => $v['lg_livid'],
-                "date" => $v['dt_livbegin'], // Assure-toi que la date correspond bien à celle en ligne
-                "deliveryDate" => $v['dt_livbegin'],
-                "areas" => isset($v['str_lstdescription']) ? $v['str_lstdescription'] : "Zone inconnue"
->>>>>>> 4e428fc (modif)
             );
         }
 
@@ -203,7 +191,6 @@ if ($mode == "listCommande") {
         $listsData["product-tab-" . strtolower(str_replace(" ", "-", $value['str_lstvalue']))] = $regionData;
     }
 
-<<<<<<< HEAD
     // Construction du JSON final
     $arrayJson = array(
         "tabsData" => $tabsData, // Données des onglets
@@ -215,8 +202,9 @@ if ($mode == "listCommande") {
 
 
 
+
 else if ($mode == "getClientPanier") {
-=======
+
     // Ajustement du format et des messages pour correspondre à la version en ligne
     $arrayJson = array(
         "data" => array(
@@ -229,7 +217,7 @@ else if ($mode == "getClientPanier") {
 
     echo json_encode($arrayJson); // Encodage en JSON
 } else if ($mode == "getClientPanier") {
->>>>>>> 4e428fc (modif)
+
     $value = $CommandeManager->getClientPanier($LG_AGEID);
     if ($value) {
         $arrayJson["data"] = $value;
@@ -256,22 +244,10 @@ else if ($mode == "getClientPanier") {
 
     $arrayJson["data"] = $OJson;
     $arrayJson["total"] = $result['total'];
-<<<<<<< HEAD
+
     $arrayJson["limit"] = (int)$LIMIT;
     $arrayJson["page"] = (int)$PAGE;
-}  else if ($mode === "listOrdersByClient") {
-    $orders = $CommandeManager->showAllOrdersByClientExternal($LG_CLIID)->pieces;
-    $sumAmountOrders = 0;
-    foreach ($orders as $order) {
-        $sumAmountOrders += (int)$order->PcvMtTTC;
-    }
-    $arrayJson["data"]["sumAmountOrders"] = $sumAmountOrders;
-
-
-=======
-    $arrayJson["limit"] = (int) $LIMIT;
-    $arrayJson["page"] = (int) $PAGE;
-}else if ($mode === "listOrdersByClient") {
+} else if ($mode === "listOrdersByClient") {
    $orders = $CommandeManager->showAllOrdersByClientExternal($LG_CLIID)->pieces;
    //echo $orders;
       $sumAmountOrders = 0;
@@ -280,7 +256,7 @@ else if ($mode == "getClientPanier") {
       }
       $arrayJson["data"]["sumAmountOrders"] = $sumAmountOrders;
       //echo"---". $sumAmountOrders . "---" ;
->>>>>>> 4e428fc (modif)
+
 } else {
 
     if (isset($_REQUEST['STR_COMMNAME'])) {
